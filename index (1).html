@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Arabic Adventurers</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#FF6B35;--orange-light:#FFE4D6;--orange-dark:#C94E1A;
+  --green:#2ECC71;--green-light:#D5F5E3;--green-dark:#1A8A47;
+  --sky:#00BFFF;--sky-light:#E0F7FF;--sky-dark:#007EA8;
+  --gold:#FFD700;--gold-light:#FFF9CC;--gold-dark:#B8860B;
+  --purple:#9B59B6;--purple-light:#EDE0F5;--purple-dark:#6C3483;
+  --rose:#FF4081;--rose-light:#FFE0EB;--rose-dark:#B5004E;
+  --teal:#00897B;--teal-light:#E0F2F1;
+  --bg:#F0F8FF;--card:#FFFFFF;--text:#1A2744;--muted:#6B7A99;--border:#E2EAF4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Baloo 2',cursive;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:linear-gradient(180deg,#87CEEB 0%,#B0E2FF 40%,#E8F8FF 100%);}
+#app{position:relative;z-index:1;}
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* ── NAV ── */
+nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-items:center;
+  padding:0 20px;height:68px;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  position:sticky;top:0;z-index:200;}
+.nav-gem{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+.nav-tabs{display:flex;gap:4px;margin-left:auto;}
+.nav-tab{padding:8px 13px;border-radius:10px;border:none;font-family:'Baloo 2',cursive;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);}
+.nav-tab:hover{background:#F0F4FF;}
+.nav-tab.active{color:white;}
+.pill{display:flex;align-items:center;gap:6px;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:800;}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:20px;border:2px solid var(--border);padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.06);}
+.card-fun{border-radius:24px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,0.1);}
+
+/* ── BUTTONS ── */
+.btn{padding:12px 24px;border-radius:14px;border:none;font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15);}
+.btn-primary{background:linear-gradient(135deg,var(--orange),#FF8C42);color:white;}
+.btn-green{background:linear-gradient(135deg,var(--green),#27AE60);color:white;}
+.btn-sky{background:linear-gradient(135deg,var(--sky),#0099CC);color:white;}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#8E44AD);color:white;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#F0A500);color:#333;}
+.btn-teal{background:linear-gradient(135deg,var(--teal),#00695C);color:white;}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px;}
+.inp{width:100%;padding:12px 16px;border-radius:12px;border:2px solid var(--border);background:white;font-family:'Baloo 2',cursive;font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s;}
+.inp:focus{border-color:var(--sky);}
+
+/* ── GAME ── */
+.choice-btn{padding:16px;border-radius:14px;border:3px solid var(--border);background:white;font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--text);}
+.choice-btn:hover{border-color:var(--sky);background:var(--sky-light);transform:scale(1.02);}
+.choice-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.choice-btn.wrong{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
+
+/* ── READER ── */
+.verse-row{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:20px 16px;border-radius:14px;margin-bottom:6px;cursor:pointer;border:2px solid transparent;transition:all 0.2s;background:white;}
+.verse-row:hover{border-color:var(--sky);background:var(--sky-light);}
+.verse-row.playing{border-color:var(--gold);background:var(--gold-light);}
+.vnum{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:6px;background:var(--sky-light);color:var(--sky-dark);border:2px solid var(--sky);}
+.verse-row.playing .vnum{background:var(--gold);color:#333;border-color:var(--gold-dark);}
+
+/* ── STATS ── */
+.stat-card{border-radius:16px;padding:18px;text-align:center;}
+.stat-num{font-size:32px;font-weight:800;display:block;}
+.stat-label{font-size:12px;margin-top:2px;font-weight:700;}
+
+/* ── PROGRESS ── */
+.prog-bar{height:10px;background:#E8EEF8;border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:5px;transition:width 1s ease;}
+.badge{display:inline-block;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:800;}
+
+/* ── TAJWEED ── */
+.tajweed-card{border-radius:16px;padding:20px;border:3px solid;margin-bottom:14px;cursor:pointer;transition:all 0.2s;}
+.tajweed-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+.tajweed-example{font-family:'Amiri',serif;font-size:36px;direction:rtl;text-align:right;margin:12px 0;line-height:2;}
+
+/* ── WRITING CANVAS ── */
+#writeCanvas{border:3px solid var(--border);border-radius:16px;cursor:crosshair;touch-action:none;background:white;}
+
+/* ── SURAH GRID ── */
+.surah-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:4px;}
+.surah-item{padding:12px 14px;border-radius:12px;border:2px solid var(--border);background:white;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;}
+.surah-item:hover{border-color:var(--sky);background:var(--sky-light);}
+.surah-item.active{border-color:var(--orange);background:var(--orange-light);}
+.surah-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:var(--sky-light);color:var(--sky-dark);}
+
+/* ── CURRICULUM ── */
+.week-card{border-radius:16px;padding:18px;margin-bottom:12px;border:2px solid;cursor:pointer;transition:all 0.2s;}
+.week-card:hover{transform:translateX(4px);}
+.week-card.done{opacity:0.7;}
+.week-card.current{box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+
+/* ── REWARD OVERLAY ── */
+.reward-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;}
+.reward-overlay.show{display:flex;}
+.reward-card{background:white;border-radius:28px;padding:48px 40px;text-align:center;max-width:400px;width:90%;animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;border:4px solid var(--gold);}
+
+/* ── CHARACTER POPUP ── */
+.char-popup{position:fixed;bottom:0;right:20px;z-index:500;display:none;flex-direction:column;align-items:flex-end;gap:0;}
+.char-popup.show{display:flex;animation:slideUp 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;}
+.char-bubble{background:white;border-radius:20px 20px 4px 20px;padding:16px 20px;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.15);border:3px solid var(--orange);position:relative;margin-bottom:8px;}
+.char-bubble::after{content:'';position:absolute;bottom:-16px;right:24px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:16px solid var(--orange);}
+.char-body{width:110px;height:130px;position:relative;cursor:pointer;}
+.char-dismiss{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── ANIMATIONS ── */
+@keyframes popIn{from{transform:scale(0.3) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+@keyframes wiggle{0%,100%{transform:rotate(0);}25%{transform:rotate(-10deg);}75%{transform:rotate(10deg);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes cfFall{0%{transform:translate(0,0) rotate(0deg);opacity:1;}100%{transform:translate(var(--dx,0),100vh) rotate(720deg);opacity:0;}}
+@keyframes slideUp{from{transform:translateY(200px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes cloudDrift{from{transform:translateX(-250px);}to{transform:translateX(110vw);}}
+@keyframes talking{0%,100%{transform:scaleY(1);}50%{transform:scaleY(0.6);}}
+@keyframes charBounce{0%,100%{transform:translateY(0) rotate(0deg);}33%{transform:translateY(-8px) rotate(-3deg);}66%{transform:translateY(-4px) rotate(3deg);}}
+@keyframes spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+
+/* ── MOBILE ── */
+.mob-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:white;border-top:3px solid var(--border);display:none;box-shadow:0 -4px 16px rgba(0,0,0,0.08);}
+.mob-tab{flex:1;padding:10px 4px;text-align:center;border:none;background:transparent;cursor:pointer;font-family:'Baloo 2',cursive;font-size:10px;font-weight:700;color:var(--muted);}
+.mob-tab.active{color:var(--orange);}
+.mob-icon{font-size:20px;display:block;margin-bottom:2px;}
+@media(max-width:700px){nav .nav-tabs{display:none;}.mob-nav{display:flex;}.page{padding-bottom:75px;}}
+</style>
+</head>
+<body>
+<div class="bg-wrap" id="bgWrap"></div>
+<div id="app">
+
+<!-- ══ LOGIN ════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-login" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+<div style="width:100%;max-width:480px;animation:fadeUp 0.6s ease both;">
+  <div style="text-align:center;margin-bottom:28px;">
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-bottom:16px;" id="loginChars">
+      <!-- Characters rendered by JS after load -->
+    </div>
+
+    <div style="font-size:30px;font-weight:800;color:var(--text);">The Arabic Adventurers</div>
+    <div style="font-size:15px;color:var(--muted);margin-top:4px;">Your Quran learning world 🌙✨</div>
+  </div>
+  <div class="card" style="border:3px solid var(--orange);box-shadow:0 12px 40px rgba(255,107,53,0.15);">
+    <div style="font-size:22px;font-weight:800;text-align:center;margin-bottom:24px;">Welcome back, Adventurer! 🎉</div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;">📧 Email address</label>
+      <input id="loginEmail" type="email" placeholder="your@gmail.com" class="inp" onkeydown="if(event?.key==='Enter'||window.event?.key==='Enter')window.doLogin()"/>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;">🔒 Password</label>
+      <input id="loginPass" type="password" placeholder="••••••••" class="inp" onkeydown="if(event?.key==='Enter'||window.event?.key==='Enter')window.doLogin()"/>
+    </div>
+    <div id="loginErr" style="color:var(--rose-dark);font-size:14px;font-weight:700;margin-bottom:12px;min-height:20px;text-align:center;"></div>
+    <button id="loginBtn" onclick="window.doLogin()" class="btn btn-primary" style="width:100%;font-size:18px;padding:16px;">Let's Go! 🚀</button>
+  </div>
+  <div style="margin-top:20px;">
+    <div style="text-align:center;font-size:13px;color:var(--muted);font-weight:700;margin-bottom:12px;">Choose your adventurer:</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+      <div class="card" style="text-align:center;padding:14px 8px;border-color:#0D7377;"><div style="font-size:32px;">🦁</div><div style="font-weight:800;font-size:13px;color:#0D7377;margin-top:6px;">Meer</div><div style="font-size:11px;color:var(--muted);">Age 13</div></div>
+      <div class="card" style="text-align:center;padding:14px 8px;border-color:#7c3aed;"><div style="font-size:32px;">🐯</div><div style="font-weight:800;font-size:13px;color:#7c3aed;margin-top:6px;">Lil Kos</div><div style="font-size:11px;color:var(--muted);">Age 12</div></div>
+      <div class="card" style="text-align:center;padding:14px 8px;border-color:#ea580c;"><div style="font-size:32px;">🦊</div><div style="font-weight:800;font-size:13px;color:#ea580c;margin-top:6px;">Sal</div><div style="font-size:11px;color:var(--muted);">Age 10</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="card" style="text-align:center;padding:14px 8px;border-color:#0891b2;"><div style="font-size:32px;">🐬</div><div style="font-weight:800;font-size:13px;color:#0891b2;margin-top:6px;">Jazz</div><div style="font-size:11px;color:var(--muted);">Age 8</div></div>
+      <div class="card" style="text-align:center;padding:14px 8px;border-color:#be185d;"><div style="font-size:32px;">🌙</div><div style="font-weight:800;font-size:13px;color:#be185d;margin-top:6px;">FH</div><div style="font-size:11px;color:var(--muted);">Ustadha</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ CHILD APP ══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-child">
+  <div id="child-nav"></div>
+  <div id="child-tabbar" style="display:flex;gap:4px;padding:10px 16px;background:white;border-bottom:2px solid var(--border);position:sticky;top:68px;z-index:99;overflow-x:auto;"></div>
+  <div id="child-panels" style="max-width:920px;margin:0 auto;padding:20px 16px 80px;"></div>
+</div>
+
+<!-- ══ PARENT DASHBOARD ════════════════════════════════════════════════ -->
+<div class="page" id="page-parent">
+  <div id="parent-nav"></div>
+  <div id="parent-content" style="max-width:1100px;margin:0 auto;padding:28px 20px 80px;"></div>
+</div>
+
+<!-- ══ CHARACTER POPUP ═══════════════════════════════════════════════ -->
+<div class="char-popup" id="charPopup">
+  <div class="char-bubble" id="charBubble">
+    <button class="char-dismiss" onclick="window.dismissChar()">✕</button>
+    <div id="charText" style="font-size:14px;font-weight:700;color:var(--text);line-height:1.6;"></div>
+  </div>
+  <div id="charFigure"></div>
+</div>
+
+<!-- ══ REWARD OVERLAY ════════════════════════════════════════════════ -->
+<div class="reward-overlay" id="rewardOverlay">
+  <div class="reward-card">
+    <div style="font-size:80px;margin-bottom:16px;animation:popIn 0.5s ease both;" id="rwEmoji">🌟</div>
+    <div style="font-size:30px;font-weight:800;color:var(--orange);margin-bottom:8px;" id="rwTitle">Amazing!</div>
+    <div style="font-size:16px;color:var(--muted);margin-bottom:20px;line-height:1.6;" id="rwMsg">Great work!</div>
+    <div style="font-size:28px;margin-bottom:24px;" id="rwStars">⭐⭐⭐</div>
+    <button onclick="window.closeReward()" class="btn btn-gold" style="width:100%;font-size:17px;">Collect Stars! ✨</button>
+  </div>
+</div>
+
+<!-- ══ MOBILE NAV ═════════════════════════════════════════════════════ -->
+<div class="mob-nav" id="mobNav" style="display:none;">
+  <button class="mob-tab active" onclick="window.switchTab(0)"><span class="mob-icon">🏠</span>Home</button>
+  <button class="mob-tab" onclick="window.switchTab(1)"><span class="mob-icon">📅</span>Plan</button>
+  <button class="mob-tab" onclick="window.switchTab(2)"><span class="mob-icon">🔤</span>Letters</button>
+  <button class="mob-tab" onclick="window.switchTab(3)"><span class="mob-icon">📖</span>Quran</button>
+  <button class="mob-tab" onclick="window.switchTab(4)"><span class="mob-icon">🧠</span>Words</button>
+  <button class="mob-tab" onclick="window.switchTab(5)"><span class="mob-icon">✍️</span>Write</button>
+  <button class="mob-tab" onclick="window.switchTab(6)"><span class="mob-icon">🎵</span>Tajweed</button>
+  <button class="mob-tab" onclick="window.switchTab(7)"><span class="mob-icon">📿</span>Hifz</button>
+  <button class="mob-tab" onclick="window.switchTab(8)"><span class="mob-icon">⏱️</span>Daily</button>
+</div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,arrayUnion}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyCb4XwGdBWre65d0MSygmPTHxN2PrCUwz8",authDomain:"the-arabic-adventurers.firebaseapp.com",projectId:"the-arabic-adventurers",storageBucket:"the-arabic-adventurers.firebasestorage.app",messagingSenderId:"211041812333",appId:"1:211041812333:web:2741e657bd23ddefe2e464"};
+const fbApp=initializeApp(firebaseConfig);
+const auth=getAuth(fbApp);
+const db=getFirestore(fbApp);
+
+const EMAIL_MAP={"ameerfika46@gmail.com":"meer","fahadfika099@gmail.com":"lilkos","salmanfika16@gmail.com":"sal","jasminefika226@gmail.com":"jazz","fg7469@gmail.com":"fh"};
+const PROFILES={
+  meer:{name:"Meer",age:13,emoji:"🦁",color:"#0D7377",accent:"#E0F5F5",greeting:"The Scholar is here! مرحباً يا أمير!"},
+  lilkos:{name:"Lil Kos",age:12,emoji:"🐯",color:"#7c3aed",accent:"#EDE0F5",greeting:"The Bridge Builder! يلا يا فهد!"},
+  sal:{name:"Sal",age:10,emoji:"🦊",color:"#ea580c",accent:"#FFF0E8",greeting:"The Decoder is ready! أهلاً يا سلمان!"},
+  jazz:{name:"Jazz",age:8,emoji:"🐬",color:"#0891b2",accent:"#E0F5FF",greeting:"Adventure begins! يا جاز!"},
+  fh:{name:"FH",age:0,emoji:"🌙",color:"#be185d",accent:"#FFE0EB",greeting:"Ahlan Ustadha! أهلاً وسهلاً!"}
+};
+const PARENT_EMAIL="fikahomeschool@gmail.com";
+
+// ── ALL 114 SURAHS ──
+const ALL_SURAHS=[
+  {n:1,ar:"الفاتحة",en:"Al-Fatiha",tr:"The Opening",v:7},{n:2,ar:"البقرة",en:"Al-Baqarah",tr:"The Cow",v:286},
+  {n:3,ar:"آل عمران",en:"Aal-E-Imran",tr:"Family of Imran",v:200},{n:4,ar:"النساء",en:"An-Nisa",tr:"The Women",v:176},
+  {n:5,ar:"المائدة",en:"Al-Maidah",tr:"The Table Spread",v:120},{n:6,ar:"الأنعام",en:"Al-Anam",tr:"The Cattle",v:165},
+  {n:7,ar:"الأعراف",en:"Al-Araf",tr:"The Heights",v:206},{n:8,ar:"الأنفال",en:"Al-Anfal",tr:"Spoils of War",v:75},
+  {n:9,ar:"التوبة",en:"At-Tawbah",tr:"The Repentance",v:129},{n:10,ar:"يونس",en:"Yunus",tr:"Jonah",v:109},
+  {n:11,ar:"هود",en:"Hud",tr:"Hud",v:123},{n:12,ar:"يوسف",en:"Yusuf",tr:"Joseph",v:111},
+  {n:13,ar:"الرعد",en:"Ar-Ra'd",tr:"The Thunder",v:43},{n:14,ar:"إبراهيم",en:"Ibrahim",tr:"Abraham",v:52},
+  {n:15,ar:"الحجر",en:"Al-Hijr",tr:"The Rocky Tract",v:99},{n:16,ar:"النحل",en:"An-Nahl",tr:"The Bee",v:128},
+  {n:17,ar:"الإسراء",en:"Al-Isra",tr:"The Night Journey",v:111},{n:18,ar:"الكهف",en:"Al-Kahf",tr:"The Cave",v:110},
+  {n:19,ar:"مريم",en:"Maryam",tr:"Mary",v:98},{n:20,ar:"طه",en:"Ta-Ha",tr:"Ta-Ha",v:135},
+  {n:21,ar:"الأنبياء",en:"Al-Anbiya",tr:"The Prophets",v:112},{n:22,ar:"الحج",en:"Al-Hajj",tr:"The Pilgrimage",v:78},
+  {n:23,ar:"المؤمنون",en:"Al-Muminun",tr:"The Believers",v:118},{n:24,ar:"النور",en:"An-Nur",tr:"The Light",v:64},
+  {n:25,ar:"الفرقان",en:"Al-Furqan",tr:"The Criterion",v:77},{n:26,ar:"الشعراء",en:"Ash-Shuara",tr:"The Poets",v:227},
+  {n:27,ar:"النمل",en:"An-Naml",tr:"The Ant",v:93},{n:28,ar:"القصص",en:"Al-Qasas",tr:"The Stories",v:88},
+  {n:29,ar:"العنكبوت",en:"Al-Ankabut",tr:"The Spider",v:69},{n:30,ar:"الروم",en:"Ar-Rum",tr:"The Romans",v:60},
+  {n:31,ar:"لقمان",en:"Luqman",tr:"Luqman",v:34},{n:32,ar:"السجدة",en:"As-Sajdah",tr:"The Prostration",v:30},
+  {n:33,ar:"الأحزاب",en:"Al-Ahzab",tr:"Combined Forces",v:73},{n:34,ar:"سبأ",en:"Saba",tr:"Sheba",v:54},
+  {n:35,ar:"فاطر",en:"Fatir",tr:"The Originator",v:45},{n:36,ar:"يس",en:"Ya-Sin",tr:"Ya Sin",v:83},
+  {n:37,ar:"الصافات",en:"As-Saffat",tr:"Those Ranged in Ranks",v:182},{n:38,ar:"ص",en:"Sad",tr:"The Letter Sad",v:88},
+  {n:39,ar:"الزمر",en:"Az-Zumar",tr:"The Groups",v:75},{n:40,ar:"غافر",en:"Ghafir",tr:"The Forgiver",v:85},
+  {n:41,ar:"فصلت",en:"Fussilat",tr:"Explained in Detail",v:54},{n:42,ar:"الشورى",en:"Ash-Shura",tr:"The Consultation",v:53},
+  {n:43,ar:"الزخرف",en:"Az-Zukhruf",tr:"Gold Adornments",v:89},{n:44,ar:"الدخان",en:"Ad-Dukhan",tr:"The Smoke",v:59},
+  {n:45,ar:"الجاثية",en:"Al-Jathiyah",tr:"The Crouching",v:37},{n:46,ar:"الأحقاف",en:"Al-Ahqaf",tr:"Wind-Curved Sandhills",v:35},
+  {n:47,ar:"محمد",en:"Muhammad",tr:"Muhammad",v:38},{n:48,ar:"الفتح",en:"Al-Fath",tr:"The Victory",v:29},
+  {n:49,ar:"الحجرات",en:"Al-Hujurat",tr:"The Rooms",v:18},{n:50,ar:"ق",en:"Qaf",tr:"The Letter Qaf",v:45},
+  {n:51,ar:"الذاريات",en:"Adh-Dhariyat",tr:"Winnowing Winds",v:60},{n:52,ar:"الطور",en:"At-Tur",tr:"The Mount",v:49},
+  {n:53,ar:"النجم",en:"An-Najm",tr:"The Star",v:62},{n:54,ar:"القمر",en:"Al-Qamar",tr:"The Moon",v:55},
+  {n:55,ar:"الرحمن",en:"Ar-Rahman",tr:"The Most Merciful",v:78},{n:56,ar:"الواقعة",en:"Al-Waqiah",tr:"The Inevitable",v:96},
+  {n:57,ar:"الحديد",en:"Al-Hadid",tr:"The Iron",v:29},{n:58,ar:"المجادلة",en:"Al-Mujadila",tr:"The Pleading Woman",v:22},
+  {n:59,ar:"الحشر",en:"Al-Hashr",tr:"The Exile",v:24},{n:60,ar:"الممتحنة",en:"Al-Mumtahanah",tr:"She Who is Examined",v:13},
+  {n:61,ar:"الصف",en:"As-Saf",tr:"The Ranks",v:14},{n:62,ar:"الجمعة",en:"Al-Jumuah",tr:"Friday",v:11},
+  {n:63,ar:"المنافقون",en:"Al-Munafiqun",tr:"The Hypocrites",v:11},{n:64,ar:"التغابن",en:"At-Taghabun",tr:"Mutual Disillusion",v:18},
+  {n:65,ar:"الطلاق",en:"At-Talaq",tr:"Divorce",v:12},{n:66,ar:"التحريم",en:"At-Tahrim",tr:"The Prohibition",v:12},
+  {n:67,ar:"الملك",en:"Al-Mulk",tr:"The Sovereignty",v:30},{n:68,ar:"القلم",en:"Al-Qalam",tr:"The Pen",v:52},
+  {n:69,ar:"الحاقة",en:"Al-Haqqah",tr:"The Reality",v:52},{n:70,ar:"المعارج",en:"Al-Maarij",tr:"Ascending Stairways",v:44},
+  {n:71,ar:"نوح",en:"Nuh",tr:"Noah",v:28},{n:72,ar:"الجن",en:"Al-Jinn",tr:"The Jinn",v:28},
+  {n:73,ar:"المزمل",en:"Al-Muzzammil",tr:"The Enshrouded One",v:20},{n:74,ar:"المدثر",en:"Al-Muddaththir",tr:"The Cloaked One",v:56},
+  {n:75,ar:"القيامة",en:"Al-Qiyamah",tr:"The Resurrection",v:40},{n:76,ar:"الإنسان",en:"Al-Insan",tr:"Man",v:31},
+  {n:77,ar:"المرسلات",en:"Al-Mursalat",tr:"The Emissaries",v:50},{n:78,ar:"النبأ",en:"An-Naba",tr:"The Tidings",v:40},
+  {n:79,ar:"النازعات",en:"An-Naziat",tr:"Those Who Pull Out",v:46},{n:80,ar:"عبس",en:"Abasa",tr:"He Frowned",v:42},
+  {n:81,ar:"التكوير",en:"At-Takwir",tr:"The Overthrowing",v:29},{n:82,ar:"الانفطار",en:"Al-Infitar",tr:"The Cleaving",v:19},
+  {n:83,ar:"المطففين",en:"Al-Mutaffifin",tr:"The Defrauding",v:36},{n:84,ar:"الانشقاق",en:"Al-Inshiqaq",tr:"The Sundering",v:25},
+  {n:85,ar:"البروج",en:"Al-Buruj",tr:"Mansions of the Stars",v:22},{n:86,ar:"الطارق",en:"At-Tariq",tr:"The Morning Star",v:17},
+  {n:87,ar:"الأعلى",en:"Al-Ala",tr:"The Most High",v:19},{n:88,ar:"الغاشية",en:"Al-Ghashiyah",tr:"The Overwhelming",v:26},
+  {n:89,ar:"الفجر",en:"Al-Fajr",tr:"The Dawn",v:30},{n:90,ar:"البلد",en:"Al-Balad",tr:"The City",v:20},
+  {n:91,ar:"الشمس",en:"Ash-Shams",tr:"The Sun",v:15},{n:92,ar:"الليل",en:"Al-Layl",tr:"The Night",v:21},
+  {n:93,ar:"الضحى",en:"Ad-Duha",tr:"The Morning Hours",v:11},{n:94,ar:"الشرح",en:"Ash-Sharh",tr:"The Relief",v:8},
+  {n:95,ar:"التين",en:"At-Tin",tr:"The Fig",v:8},{n:96,ar:"العلق",en:"Al-Alaq",tr:"The Clot",v:19},
+  {n:97,ar:"القدر",en:"Al-Qadr",tr:"The Power",v:5},{n:98,ar:"البينة",en:"Al-Bayyinah",tr:"The Clear Proof",v:8},
+  {n:99,ar:"الزلزلة",en:"Az-Zalzalah",tr:"The Earthquake",v:8},{n:100,ar:"العاديات",en:"Al-Adiyat",tr:"The Courser",v:11},
+  {n:101,ar:"القارعة",en:"Al-Qariah",tr:"The Calamity",v:11},{n:102,ar:"التكاثر",en:"At-Takathur",tr:"Rivalry in World Increase",v:8},
+  {n:103,ar:"العصر",en:"Al-Asr",tr:"The Declining Day",v:3},{n:104,ar:"الهمزة",en:"Al-Humazah",tr:"The Traducer",v:9},
+  {n:105,ar:"الفيل",en:"Al-Fil",tr:"The Elephant",v:5},{n:106,ar:"قريش",en:"Quraysh",tr:"Quraysh",v:4},
+  {n:107,ar:"الماعون",en:"Al-Maun",tr:"Small Kindnesses",v:7},{n:108,ar:"الكوثر",en:"Al-Kawthar",tr:"Abundance",v:3},
+  {n:109,ar:"الكافرون",en:"Al-Kafirun",tr:"The Disbelievers",v:6},{n:110,ar:"النصر",en:"An-Nasr",tr:"Divine Support",v:3},
+  {n:111,ar:"المسد",en:"Al-Masad",tr:"The Palm Fibre",v:5},{n:112,ar:"الإخلاص",en:"Al-Ikhlas",tr:"Sincerity",v:4},
+  {n:113,ar:"الفلق",en:"Al-Falaq",tr:"The Daybreak",v:5},{n:114,ar:"الناس",en:"An-Nas",tr:"Mankind",v:6}
+];
+
+// ── TRANSLITERATIONS for Al-Fatiha (the only surah with stored transliteration) ──
+const FATIHA_TRANSLIT=["Bismi llāhi r-raḥmāni r-raḥīm","Al-ḥamdu lillāhi rabbi l-ʿālamīn","Ar-raḥmāni r-raḥīm","Māliki yawmi d-dīn","Iyyāka naʿbudu wa-iyyāka nastaʿīn","Ihdinā ṣ-ṣirāṭa l-mustaqīm","Ṣirāṭa l-ladhīna anʿamta ʿalayhim ghayri l-maghḍūbi ʿalayhim wa-lā ḍ-ḍāllīn"];
+
+// ── BEDTIME FACTS for character delivery ──
+const CHAR_FACTS=[
+  {char:"omar",text:"Did you know? The word ALGEBRA comes from Arabic — al-jabr — meaning 'reunion of broken parts.' A Muslim scholar invented it! 🧮"},
+  {char:"hana",text:"The name Maryam (Mary) appears more times in the Quran than in the entire New Testament! She has a whole Surah named after her. 🌸"},
+  {char:"zaky",text:"The Arabic letter Nun (ن) means 'fish' in ancient Semitic languages. It looks like a little boat with a dot inside! 🐟"},
+  {char:"omar",text:"The word COFFEE comes from Arabic — قَهْوَة (qahwa). Arab scholars used it to stay awake while studying! ☕"},
+  {char:"hana",text:"Al-Fatiha means 'The Opening.' We recite it at least 17 times every day in our prayers. That's 6,205 times a year! 🌟"},
+  {char:"zaky",text:"The Quran has exactly 114 Surahs. The number 114 = 6 × 19. Scholars have studied this beautiful pattern for 1,400 years! 📚"},
+  {char:"omar",text:"Sheikh Mishary Alafasy — the voice you hear in the Quran reader — memorised the entire Quran as a child, just like you can! 🎵"},
+  {char:"hana",text:"The word Zakat (charity) and Zaky (pure/intelligent) come from the same Arabic root. Giving makes you smarter! 💛"},
+  {char:"zaky",text:"Arabic is written right to left — the opposite of English! This means Arabic books open from the right side. Try it! ➡️"},
+  {char:"omar",text:"The Prophet Muhammad ﷺ said: 'The best among you are those who learn the Quran and teach it.' That's YOU right now! ⭐"},
+  {char:"hana",text:"The word 'magazine' comes from Arabic — makhāzin — meaning 'storehouses.' Arabic words are everywhere in English! 📖"},
+  {char:"zaky",text:"There are 28 letters in the Arabic alphabet — the same number as days in the shortest month! Can you learn one a day? 🗓️"},
+];
+
+// ── 16-WEEK CURRICULUM ──
+const CURRICULUM=[
+  {week:1,phase:"Decode",title:"Alphabet Adventure — Letters 1-7",daily:"Learn Alif, Ba, Ta, Tha, Jim, Ha, Kha. Draw each letter 5 times.",goal:"Recognise 7 letters",xp:100,color:"var(--orange)"},
+  {week:2,phase:"Decode",title:"Alphabet Adventure — Letters 8-14",daily:"Learn Dal, Dhal, Ra, Zain, Sin, Shin, Sad. Use mnemonics.",goal:"Recognise 14 letters",xp:100,color:"var(--orange)"},
+  {week:3,phase:"Decode",title:"Alphabet Adventure — Letters 15-21",daily:"Learn Dad, Ta-heavy, Dha, Ain, Ghain, Fa, Qaf.",goal:"Recognise 21 letters",xp:100,color:"var(--orange)"},
+  {week:4,phase:"Decode",title:"Alphabet Mastery — Letters 22-28 + Vowels",daily:"Learn Kaf, Lam, Mim, Nun, Ha, Waw, Ya. Add short vowels (fatha, kasra, damma).",goal:"Read all 28 letters with vowels. Read Al-Fatiha.",xp:150,color:"var(--orange)"},
+  {week:5,phase:"Connect",title:"Hover-Pause-Reflect — Short Surahs",daily:"Read Al-Ikhlas, Al-Falaq, An-Nas with side-by-side. Hover. Pause. Reflect.",goal:"Read 3 Surahs with comprehension",xp:150,color:"var(--green)"},
+  {week:6,phase:"Connect",title:"Audio Shadowing — Follow the Reciter",daily:"Play a Surah. Shadow Sheikh Alafasy. Pause and repeat each verse.",goal:"Mimic pronunciation of 5 Surahs",xp:150,color:"var(--green)"},
+  {week:7,phase:"Connect",title:"Tajweed Basics — Ghunnah & Madd",daily:"Learn Ghunnah (nasal sound on ن and م). Learn Madd (long vowels).",goal:"Apply 2 Tajweed rules correctly",xp:200,color:"var(--green)"},
+  {week:8,phase:"Connect",title:"Tajweed — Qalqalah & Sukoon",daily:"Learn Qalqalah (bouncing sound on ق ط ب ج د). Practice with Al-Falaq.",goal:"Read 5 verses with Qalqalah marked",xp:200,color:"var(--green)"},
+  {week:9,phase:"Bridge",title:"Juz Amma Sprint — Surahs 78-85",daily:"Read Surah An-Naba through Al-Inshiqaq side-by-side. One Surah per day.",goal:"Complete 8 Surahs with meaning",xp:250,color:"var(--sky)"},
+  {week:10,phase:"Bridge",title:"Juz Amma Sprint — Surahs 86-95",daily:"Read At-Tariq through Ash-Shams. Focus on understanding the message.",goal:"Complete 10 more Surahs with meaning",xp:250,color:"var(--sky)"},
+  {week:11,phase:"Bridge",title:"Juz Amma Sprint — Surahs 96-114",daily:"Complete Juz Amma! Al-Alaq to An-Nas. Celebrate with family!",goal:"Complete ALL of Juz Amma",xp:350,color:"var(--sky)"},
+  {week:12,phase:"Bridge",title:"Root Detective — 100 High-Frequency Words",daily:"Learn 10 Quranic root words per day. Play Word Wizard daily.",goal:"Recognise 100 root words",xp:300,color:"var(--sky)"},
+  {week:13,phase:"Understand",title:"Vocabulary Accelerator — 200 Words",daily:"Continue Word Wizard. Try to guess meaning BEFORE seeing English.",goal:"Recognise 200 root words",xp:350,color:"var(--purple)"},
+  {week:14,phase:"Understand",title:"The 300-Word Milestone",daily:"Final vocabulary push. Review all previous words. No peeking!",goal:"Recognise 300 root words — unlock independent reading!",xp:400,color:"var(--purple)"},
+  {week:15,phase:"Mastery",title:"Independent Reading — 1 Page Challenge",daily:"Read 1 page of Quran. First pass Arabic only. Second pass side-by-side.",goal:"Read 1 full page with under 20% lookup",xp:500,color:"var(--gold-dark)"},
+  {week:16,phase:"Mastery",title:"Scholar Certification — Final Assessment",daily:"Read Al-Fatiha + 5 Surahs of choice from memory with correct Tajweed.",goal:"Graduate as a Quran Reader! 🎓",xp:1000,color:"var(--gold-dark)"},
+];
+
+// ── TAJWEED RULES ──
+const TAJWEED=[
+  {name:"Ghunnah",arabic:"غُنَّة",color:"#E53935",bg:"#FFEBEE",desc:"A nasal humming sound held for 2 beats. Happens on ن and م when they have shaddah (ّ).",example:"إِنَّ",ex_note:"The ن with shaddah — hum through your nose!",tip:"Put your finger on your nose. If it vibrates, you have Ghunnah! 👃"},
+  {name:"Madd",arabic:"مَدّ",color:"#1565C0",bg:"#E3F2FD",desc:"Stretching a vowel sound for 2, 4 or 6 beats. Like the letters ا و ي after a long vowel.",example:"الرَّحِيمِ",ex_note:"The ي is stretched — Raheeeem!",tip:"Think of pulling a rubber band. The longer the stretch, the longer the Madd! 🎸"},
+  {name:"Qalqalah",arabic:"قَلْقَلَة",color:"#6A1B9A",bg:"#F3E5F5",desc:"An echoing bounce sound on the letters ق ط ب ج د when they have sukoon (no vowel).",example:"الْفَلَقِ",ex_note:"The ق at the end bounces — Falaqq!",tip:"These 5 letters bounce like a ball when they stop: قُطُبُ جَدٍّ (Qutb Jadd) — a secret code! ⚽"},
+  {name:"Idgham",arabic:"إِدْغَام",color:"#2E7D32",bg:"#E8F5E9",desc:"Merging two letters together smoothly. When ن or م meets certain letters, they blend.",example:"مَن يَعْمَلْ",example2:"man + ya = maya",ex_note:"The ن melts into the ي — man yaamal",tip:"Like two puzzle pieces clicking together. The first letter disappears into the second! 🧩"},
+  {name:"Ikhfa",arabic:"إِخْفَاء",color:"#E65100",bg:"#FFF3E0",desc:"Hiding the sound of ن or م before certain letters — a soft nasal tone between clear and merged.",example:"مَن كَانَ",ex_note:"The ن is hidden before ك — soft nasal",tip:"Ikhfa means 'to hide.' The ن goes undercover! It's not fully said, not fully merged — just hidden. 🕵️"},
+];
+
+// ── VOCAB WITH SPACED REPETITION ──
+const VOCAB=[
+  {a:"رَحْمَة",e:"Mercy",r:"ر-ح-م",opts:["Mercy","Power","Time","Light"],lvl:0,next:0},
+  {a:"حَمْد",e:"Praise",r:"ح-م-د",opts:["Praise","Gift","Sky","Path"],lvl:0,next:0},
+  {a:"رَبّ",e:"Lord",r:"ر-ب-ب",opts:["Lord","Book","Name","Rain"],lvl:0,next:0},
+  {a:"عِبَادَة",e:"Worship",r:"ع-ب-د",opts:["Worship","Journey","Sleep","Garden"],lvl:0,next:0},
+  {a:"هِدَايَة",e:"Guidance",r:"ه-د-ي",opts:["Guidance","Strength","Mountain","Blessing"],lvl:0,next:0},
+  {a:"صِرَاط",e:"Path",r:"ص-ر-ط",opts:["Path","Water","Moon","Cloud"],lvl:0,next:0},
+  {a:"أَحَد",e:"The One",r:"ح-د-د",opts:["The One","The Last","The Wise","The Strong"],lvl:0,next:0},
+  {a:"خَلَقَ",e:"He Created",r:"خ-ل-ق",opts:["He Created","He Gave","He Saw","He Said"],lvl:0,next:0},
+  {a:"مَلِك",e:"King",r:"م-ل-ك",opts:["King","Angel","Star","River"],lvl:0,next:0},
+  {a:"نُور",e:"Light",r:"ن-و-ر",opts:["Light","Door","Heart","Voice"],lvl:0,next:0},
+  {a:"كِتَاب",e:"Book",r:"ك-ت-ب",opts:["Book","House","Tree","Sky"],lvl:0,next:0},
+  {a:"سَمَاء",e:"Sky/Heaven",r:"س-م-و",opts:["Sky/Heaven","Sea","Sand","Stone"],lvl:0,next:0},
+  {a:"شُكْر",e:"Gratitude",r:"ش-ك-ر",opts:["Gratitude","Prayer","Fasting","Charity"],lvl:0,next:0},
+  {a:"صَبْر",e:"Patience",r:"ص-ب-ر",opts:["Patience","Bravery","Wisdom","Justice"],lvl:0,next:0},
+  {a:"عِلْم",e:"Knowledge",r:"ع-ل-م",opts:["Knowledge","Wealth","Fame","Power"],lvl:0,next:0},
+  {a:"إِيمَان",e:"Faith",r:"أ-م-ن",opts:["Faith","Hope","Love","Peace"],lvl:0,next:0},
+  {a:"دُعَاء",e:"Supplication",r:"د-ع-و",opts:["Supplication","Fasting","Charity","Pilgrimage"],lvl:0,next:0},
+  {a:"جَنَّة",e:"Paradise",r:"ج-ن-ن",opts:["Paradise","Hellfire","Earth","Sky"],lvl:0,next:0},
+  {a:"صَلَاة",e:"Prayer",r:"ص-ل-و",opts:["Prayer","Fasting","Charity","Pilgrimage"],lvl:0,next:0},
+  {a:"تَوْبَة",e:"Repentance",r:"ت-و-ب",opts:["Repentance","Reward","Punishment","Forgiveness"],lvl:0,next:0},
+];
+// Spaced repetition intervals (in sessions): lvl 0=now, 1=next session, 2=2 sessions, 3=5 sessions
+const SR_INTERVALS=[0,1,2,5,10];
+
+// ── ALPHABET ──
+const ALPHABET=[
+  {l:"ا",n:"Alif",m:"Tall like a candle 🕯️",sound:"aa"},{l:"ب",n:"Ba",m:"A boat with one dot ⛵",sound:"b"},
+  {l:"ت",n:"Ta",m:"Boat with TWO dots 🚤",sound:"t"},{l:"ث",n:"Tha",m:"THREE dots — like stars ✨",sound:"th"},
+  {l:"ج",n:"Jim",m:"A dot hidden underneath 🔍",sound:"j"},{l:"ح",n:"Ha",m:"Open — breathe out 🌬️",sound:"h"},
+  {l:"خ",n:"Kha",m:"A dot on top — a hat 🎩",sound:"kh"},{l:"د",n:"Dal",m:"A slanted door 🚪",sound:"d"},
+  {l:"ذ",n:"Dhal",m:"Dal with a hat 🎓",sound:"dh"},{l:"ر",n:"Ra",m:"A resting swan 🦢",sound:"r"},
+  {l:"ز",n:"Zain",m:"Ra with a zig-zag dot ⚡",sound:"z"},{l:"س",n:"Sin",m:"Three sea waves 🌊",sound:"s"},
+  {l:"ش",n:"Shin",m:"Sin with THREE dots 🎆",sound:"sh"},{l:"ص",n:"Sad",m:"A sleeping cat 🐱",sound:"s"},
+  {l:"ض",n:"Dad",m:"Sad with a dot 💎",sound:"d"},{l:"ط",n:"Ta (heavy)",m:"Circle with a flag 🚩",sound:"t"},
+  {l:"ع",n:"Ain",m:"A tiny eye 👁️",sound:"aa"},{l:"غ",n:"Ghain",m:"Ain blinking 😉",sound:"gh"},
+  {l:"ف",n:"Fa",m:"A fishbowl with one dot 🐠",sound:"f"},{l:"ق",n:"Qaf",m:"Two dots under a circle 🪐",sound:"q"},
+  {l:"ك",n:"Kaf",m:"A hand ready to give ✋",sound:"k"},{l:"ل",n:"Lam",m:"A lasso 🤠",sound:"l"},
+  {l:"م",n:"Mim",m:"A snail with a circle 🐌",sound:"m"},{l:"ن",n:"Nun",m:"A bowl holding a pearl 🦪",sound:"n"},
+  {l:"ه",n:"Ha (soft)",m:"A heart shape ❤️",sound:"h"},{l:"و",n:"Waw",m:"A lollipop 🍭",sound:"w"},
+  {l:"ي",n:"Ya",m:"Two dots and a swooping tail 🦚",sound:"y"},
+];
+
+// ── STATE ──
+let currentUser=null,profileKey=null,isParent=false,allChildData={};
+let showTr=true,showEn=true,showRt=false;
+let readerPlaying=false,readerTimer=null,readerIdx=0,currentSurahNum=1,currentVerses=[];
+let aQueue=[],aIdx=0,aScore=0,aAnswered=false;
+let vQueue=[],vIdx=0,vCorrect=0,vWrong=0,vSessionStars=0,vAnswered=false;
+let isDrawing=false,lastX=0,lastY=0;
+let charFactIdx=0,charTimer=null;
+let currentWeek=1;
+
+// ── UTILS ──
+function shuffle(a){return[...a].sort(()=>Math.random()-0.5);}
+function today(){return new Date().toISOString().split("T")[0];}
+function el(id){return document.getElementById(id);}
+
+function getAbsoluteVerseNum(surahNum,ayahNum){
+  const cumulative=[0,7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
+  let total=0;
+  for(let i=0;i<surahNum-1;i++) total+=cumulative[i+1];
+  return total+ayahNum;
+}
+
+// ── AUTH ──
+document.addEventListener("DOMContentLoaded",()=>{
+  // Inject login page characters now that buildCharHTML is defined
+  const lc=document.getElementById("loginChars");
+  if(lc){
+    lc.innerHTML=
+      buildCharHTML("omar",88)+
+      '<div style="font-family:Amiri,serif;font-size:72px;color:#FF6B35;filter:drop-shadow(0 4px 8px rgba(255,107,53,0.3));animation:float 3s ease-in-out infinite;display:inline-block;line-height:1;">ن</div>'+
+      buildCharHTML("hana",88)+
+      buildCharHTML("zaky",88);
+  }
+  onAuthStateChanged(auth,async user=>{
+    if(user){
+      currentUser=user;
+      if(user.email.toLowerCase()===PARENT_EMAIL){isParent=true;await loadParent();}
+      else{isParent=false;await loadChild(user);}
+    } else {
+      currentUser=null;profileKey=null;isParent=false;showPage("login");
+    }
+  });
+});
+
+async function doLogin(){
+  const email=el("loginEmail").value.trim();
+  const pass=el("loginPass").value;
+  const errEl=el("loginErr");const btn=el("loginBtn");
+  errEl.textContent="";btn.textContent="Signing in…";
+  try{await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){
+    const codes={"auth/invalid-credential":"❌ Email or password is incorrect.","auth/too-many-requests":"❌ Too many attempts — wait 5 minutes.","auth/network-request-failed":"❌ No internet connection.","auth/unauthorized-domain":"❌ Domain not authorised in Firebase settings."};
+    errEl.textContent=codes[e.code]||("❌ "+e.code);
+    btn.textContent="Let's Go! 🚀";
+  }
+}
+async function doLogout(){await signOut(auth);}
+
+// ── LOAD CHILD ──
+async function loadChild(user){
+  profileKey=EMAIL_MAP[user.email.toLowerCase()]||"meer";
+  const p=PROFILES[profileKey];
+  const ref=doc(db,"users",user.uid);
+  let snap=await getDoc(ref);
+  if(!snap.exists()){
+    await setDoc(ref,{nickname:profileKey,displayName:p.name,age:p.age,emoji:p.emoji,role:"child",stars:0,streak:0,lastActive:today(),lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],assignedWork:[],weeklyNote:"",currentWeek:1,vocabSRData:[]});
+    snap=await getDoc(ref);
+  }
+  await updateDoc(ref,{lastActive:today()});
+  window._ref=ref;window._data=snap.data();window._prof=profileKey;
+  currentWeek=window._data.currentWeek||1;
+  showPage("child");
+  buildChildUI(window._data,p);
+  el("mobNav").style.display="flex";
+  scheduleCharPopup();
+}
+
+async function loadParent(){
+  showPage("parent");
+  const snap=await getDocs(collection(db,"users"));
+  allChildData={};snap.forEach(d=>allChildData[d.id]=d.data());
+  buildParentUI();el("mobNav").style.display="none";
+}
+
+async function saveProgress(updates){
+  if(!window._ref)return;
+  await updateDoc(window._ref,updates);
+  window._data={...window._data,...updates};
+}
+
+// ── PAGES / TABS ──
+function showPage(name){
+  ["login","child","parent"].forEach(p=>{
+    const e=el("page-"+p);if(!e)return;
+    const displays={login:"flex",child:"block",parent:"block"};
+    e.classList.toggle("active",p===name);
+    e.style.display=p===name?(displays[p]||"block"):"none";
+  });
+}
+
+function switchTab(idx){
+  document.querySelectorAll(".ctab").forEach((t,i)=>{
+    t.classList.toggle("active",i===idx);
+    t.style.background=i===idx?"var(--orange)":"transparent";
+    t.style.color=i===idx?"white":"var(--muted)";
+  });
+  document.querySelectorAll(".cpanel").forEach((p,i)=>p.style.display=i===idx?"block":"none");
+  document.querySelectorAll(".mob-tab").forEach((t,i)=>t.classList.toggle("active",i===idx));
+  if(idx===3&&currentVerses.length===0)loadSurahNum(currentSurahNum);
+  if(idx===5)initWriting();
+  if(idx===7)buildMemTracker();
+  if(idx===8)buildDailyTimer();
+}
+
+// ── CHARACTER POPUP ──
+function buildCharHTML(charName, size=110){
+  const delay = charName==="omar"?"0s":charName==="hana"?"0.4s":"0.8s";
+  const animStyle = `animation:charBounce 2.2s ease-in-out infinite;animation-delay:${delay};display:inline-block;`;
+
+  if(charName==="omar"){
+    return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+      <!-- Shadow -->
+      <ellipse cx="55" cy="128" rx="22" ry="4" fill="rgba(0,0,0,0.12)"/>
+      <!-- Legs -->
+      <rect x="34" y="98" width="16" height="28" rx="8" fill="#1565C0"/>
+      <rect x="60" y="98" width="16" height="28" rx="8" fill="#1565C0"/>
+      <!-- Shoes -->
+      <ellipse cx="42" cy="126" rx="10" ry="5" fill="#1A237E"/>
+      <ellipse cx="68" cy="126" rx="10" ry="5" fill="#1A237E"/>
+      <!-- Body / Red hoodie -->
+      <rect x="22" y="54" width="66" height="52" rx="20" fill="#E53935"/>
+      <!-- Hoodie pocket -->
+      <rect x="38" y="84" width="34" height="18" rx="9" fill="#C62828"/>
+      <!-- Left arm -->
+      <rect x="8" y="56" width="18" height="44" rx="9" fill="#E53935" transform="rotate(8,17,78)"/>
+      <!-- Right arm -->
+      <rect x="84" y="56" width="18" height="44" rx="9" fill="#E53935" transform="rotate(-8,93,78)"/>
+      <!-- Hands -->
+      <circle cx="14" cy="98" r="8" fill="#D4956A"/>
+      <circle cx="96" cy="98" r="8" fill="#D4956A"/>
+      <!-- Neck -->
+      <rect x="46" y="46" width="18" height="12" rx="6" fill="#D4956A"/>
+      <!-- Head -->
+      <circle cx="55" cy="34" r="28" fill="#D4956A"/>
+      <!-- Ears -->
+      <circle cx="27" cy="36" r="7" fill="#C4855A"/>
+      <circle cx="83" cy="36" r="7" fill="#C4855A"/>
+      <!-- Hair -->
+      <path d="M27 22 Q55 4 83 22 Q80 10 55 8 Q30 10 27 22Z" fill="#1A0A00"/>
+      <!-- Cap -->
+      <path d="M26 24 Q55 6 84 24 Q80 14 55 12 Q30 14 26 24Z" fill="#1565C0"/>
+      <rect x="20" y="22" width="70" height="8" rx="4" fill="#0D47A1"/>
+      <!-- Cap button -->
+      <circle cx="55" cy="13" r="4" fill="#FFD700"/>
+      <!-- Eyes - white -->
+      <circle cx="44" cy="34" r="8" fill="white"/>
+      <circle cx="66" cy="34" r="8" fill="white"/>
+      <!-- Pupils -->
+      <circle cx="46" cy="35" r="5" fill="#1A0A00"/>
+      <circle cx="68" cy="35" r="5" fill="#1A0A00"/>
+      <!-- Eye shine -->
+      <circle cx="48" cy="33" r="2" fill="white"/>
+      <circle cx="70" cy="33" r="2" fill="white"/>
+      <!-- Smile -->
+      <path d="M44 46 Q55 56 66 46" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Rosy cheeks -->
+      <circle cx="35" cy="42" r="7" fill="#FFB3A0" opacity="0.5"/>
+      <circle cx="75" cy="42" r="7" fill="#FFB3A0" opacity="0.5"/>
+      <!-- Hoodie string -->
+      <circle cx="47" cy="68" r="3" fill="#FFCDD2"/>
+      <circle cx="63" cy="68" r="3" fill="#FFCDD2"/>
+    </svg>`;
+  }
+
+  if(charName==="hana"){
+    return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+      <!-- Shadow -->
+      <ellipse cx="55" cy="128" rx="22" ry="4" fill="rgba(0,0,0,0.12)"/>
+      <!-- Skirt -->
+      <path d="M22 90 Q20 120 40 128 L70 128 Q90 120 88 90Z" fill="#4CAF50"/>
+      <!-- Skirt highlight -->
+      <path d="M30 90 Q28 115 44 124" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Legs -->
+      <rect x="36" y="110" width="14" height="18" rx="7" fill="#D4956A"/>
+      <rect x="60" y="110" width="14" height="18" rx="7" fill="#D4956A"/>
+      <!-- Shoes -->
+      <ellipse cx="43" cy="127" rx="9" ry="5" fill="#4CAF50"/>
+      <ellipse cx="67" cy="127" rx="9" ry="5" fill="#4CAF50"/>
+      <!-- Body - teal top -->
+      <rect x="24" y="54" width="62" height="44" rx="18" fill="#00897B"/>
+      <!-- Heart on top -->
+      <path d="M55 72 C55 72 48 66 46 70 C44 74 55 82 55 82 C55 82 66 74 64 70 C62 66 55 72 55 72Z" fill="#FFD700"/>
+      <!-- Left arm -->
+      <rect x="10" y="56" width="17" height="38" rx="8" fill="#00897B" transform="rotate(10,18,75)"/>
+      <!-- Right arm -->
+      <rect x="83" y="56" width="17" height="38" rx="8" fill="#00897B" transform="rotate(-10,92,75)"/>
+      <!-- Hands -->
+      <circle cx="13" cy="93" r="7" fill="#D4956A"/>
+      <circle cx="97" cy="93" r="7" fill="#D4956A"/>
+      <!-- Neck -->
+      <rect x="46" y="46" width="18" height="12" rx="6" fill="#D4956A"/>
+      <!-- Head -->
+      <circle cx="55" cy="32" r="27" fill="#D4956A"/>
+      <!-- Ears -->
+      <circle cx="28" cy="34" r="7" fill="#C4855A"/>
+      <circle cx="82" cy="34" r="7" fill="#C4855A"/>
+      <!-- Hair -->
+      <path d="M28 20 Q55 3 82 20 Q78 8 55 6 Q32 8 28 20Z" fill="#1A0A00"/>
+      <!-- Hair sides -->
+      <path d="M28 18 Q20 28 24 44" stroke="#1A0A00" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M82 18 Q90 28 86 44" stroke="#1A0A00" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- Bow left petal -->
+      <ellipse cx="38" cy="8" rx="12" ry="8" fill="#FFD700" transform="rotate(-25,38,8)"/>
+      <!-- Bow right petal -->
+      <ellipse cx="72" cy="8" rx="12" ry="8" fill="#FFD700" transform="rotate(25,72,8)"/>
+      <!-- Bow center knot -->
+      <circle cx="55" cy="10" r="6" fill="#FFA000"/>
+      <!-- Eyes white -->
+      <circle cx="44" cy="32" r="8" fill="white"/>
+      <circle cx="66" cy="32" r="8" fill="white"/>
+      <!-- Pupils -->
+      <circle cx="46" cy="33" r="5" fill="#1A0A00"/>
+      <circle cx="68" cy="33" r="5" fill="#1A0A00"/>
+      <!-- Eye shine -->
+      <circle cx="48" cy="31" r="2" fill="white"/>
+      <circle cx="70" cy="31" r="2" fill="white"/>
+      <!-- Eyelashes -->
+      <line x1="39" y1="26" x2="37" y2="22" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="44" y1="24" x2="44" y2="20" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="49" y1="26" x2="51" y2="22" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Smile -->
+      <path d="M44 44 Q55 54 66 44" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Cheeks -->
+      <circle cx="34" cy="40" r="7" fill="#FF8A80" opacity="0.55"/>
+      <circle cx="76" cy="40" r="7" fill="#FF8A80" opacity="0.55"/>
+    </svg>`;
+  }
+
+  // ZAKY - purple bear
+  return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+    <!-- Shadow -->
+    <ellipse cx="55" cy="128" rx="24" ry="5" fill="rgba(0,0,0,0.12)"/>
+    <!-- Legs -->
+    <rect x="30" y="96" width="20" height="32" rx="10" fill="#7B1FA2"/>
+    <rect x="60" y="96" width="20" height="32" rx="10" fill="#7B1FA2"/>
+    <!-- Feet -->
+    <ellipse cx="40" cy="127" rx="13" ry="6" fill="#6A1B9A"/>
+    <ellipse cx="70" cy="127" rx="13" ry="6" fill="#6A1B9A"/>
+    <!-- Body -->
+    <ellipse cx="55" cy="80" rx="36" ry="30" fill="#9C27B0"/>
+    <!-- Belly patch -->
+    <ellipse cx="55" cy="82" rx="22" ry="18" fill="#CE93D8"/>
+    <!-- Buttons -->
+    <circle cx="55" cy="72" r="4" fill="#FFD700"/>
+    <circle cx="55" cy="84" r="4" fill="#FFD700"/>
+    <circle cx="55" cy="96" r="4" fill="#FFD700"/>
+    <!-- Arms -->
+    <ellipse cx="18" cy="76" rx="10" ry="20" fill="#9C27B0" transform="rotate(15,18,76)"/>
+    <ellipse cx="92" cy="76" rx="10" ry="20" fill="#9C27B0" transform="rotate(-15,92,76)"/>
+    <!-- Paws -->
+    <circle cx="12" cy="94" r="10" fill="#7B1FA2"/>
+    <circle cx="98" cy="94" r="10" fill="#7B1FA2"/>
+    <!-- Ear outer -->
+    <circle cx="26" cy="20" r="14" fill="#7B1FA2"/>
+    <circle cx="84" cy="20" r="14" fill="#7B1FA2"/>
+    <!-- Ear inner -->
+    <circle cx="26" cy="20" r="9" fill="#CE93D8"/>
+    <circle cx="84" cy="20" r="9" fill="#CE93D8"/>
+    <!-- Head -->
+    <circle cx="55" cy="40" r="34" fill="#9C27B0"/>
+    <!-- Cap brim -->
+    <rect x="20" y="24" width="70" height="10" rx="5" fill="#C62828"/>
+    <!-- Cap top -->
+    <path d="M26 26 Q55 8 84 26 Q80 14 55 12 Q30 14 26 26Z" fill="#E53935"/>
+    <!-- Cap button -->
+    <circle cx="55" cy="13" r="5" fill="#FFD700"/>
+    <!-- Muzzle -->
+    <ellipse cx="55" cy="50" rx="16" ry="13" fill="#CE93D8"/>
+    <!-- Nose -->
+    <ellipse cx="55" cy="44" rx="7" ry="5" fill="#4A148C"/>
+    <!-- Nostrils -->
+    <circle cx="52" cy="45" r="1.5" fill="#38006B"/>
+    <circle cx="58" cy="45" r="1.5" fill="#38006B"/>
+    <!-- Eyes white -->
+    <circle cx="42" cy="34" r="9" fill="white"/>
+    <circle cx="68" cy="34" r="9" fill="white"/>
+    <!-- Pupils -->
+    <circle cx="44" cy="35" r="6" fill="#1A0A00"/>
+    <circle cx="70" cy="35" r="6" fill="#1A0A00"/>
+    <!-- Eye shine -->
+    <circle cx="46" cy="33" r="2.5" fill="white"/>
+    <circle cx="72" cy="33" r="2.5" fill="white"/>
+    <!-- Happy mouth -->
+    <path d="M46 55 Q55 64 64 55" stroke="#4A148C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Cheeks -->
+    <circle cx="34" cy="48" r="8" fill="#FF80AB" opacity="0.4"/>
+    <circle cx="76" cy="48" r="8" fill="#FF80AB" opacity="0.4"/>
+  </svg>`;
+}
+
+function scheduleCharPopup(){
+  clearTimeout(charTimer);
+  charTimer=setTimeout(()=>showCharFact(),8000);
+}
+
+function showCharFact(){
+  const fact=CHAR_FACTS[charFactIdx%CHAR_FACTS.length];
+  charFactIdx++;
+  const popup=el("charPopup");
+  const fig=el("charFigure");
+  const txt=el("charText");
+  if(!popup||!fig||!txt)return;
+  txt.textContent=fact.text;
+  fig.innerHTML=buildCharHTML(fact.char,100);
+  popup.classList.add("show");
+  clearTimeout(charTimer);
+  charTimer=setTimeout(()=>{popup.classList.remove("show");setTimeout(scheduleCharPopup,60000);},12000);
+}
+
+function dismissChar(){
+  const popup=el("charPopup");
+  if(popup) popup.classList.remove("show");
+  clearTimeout(charTimer);
+  charTimer=setTimeout(scheduleCharPopup,90000);
+}
+
+// ── BUILD CHILD UI ──
+function buildChildUI(data,p){
+  const color=p.color;
+  const stars=data.stars||0;const streak=data.streak||0;
+  const letters=(data.lettersLearned||[]).length;const lessons=(data.lessonsComplete||[]).length;
+  const assigned=data.assignedWork||[];const note=data.weeklyNote||"";
+
+  el("child-nav").innerHTML=`<nav>
+    <div class="nav-gem" style="background:${color};">${p.emoji}</div>
+    <div><div style="font-size:17px;font-weight:800;color:var(--text);">${p.name}'s Adventure</div><span style="font-size:11px;color:var(--muted);display:block;">The Arabic Adventurers</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab ctab active" onclick="window.switchTab(0)" style="background:var(--orange);color:white;">🏠 Home</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(1)">📅 Plan</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(2)">🔤 Letters</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(3)">📖 Quran</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(4)">🧠 Words</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(5)">✍️ Write</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(6)">🎵 Tajweed</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(7)">📿 Memorise</button>
+      <button class="nav-tab ctab" onclick="window.switchTab(8)">⏱️ Daily</button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-left:12px;">
+      <div class="pill" style="background:var(--gold-light);color:var(--gold-dark);border:2px solid var(--gold);">⭐ ${stars}</div>
+      <div class="pill" style="background:#FFF0E8;color:var(--orange-dark);border:2px solid var(--orange);">🔥 ${streak}</div>
+      <button onclick="window.doLogout()" class="btn" style="padding:7px 14px;background:#F0F4FF;color:var(--muted);font-size:13px;">Sign out</button>
+    </div>
+  </nav>`;
+
+  el("child-panels").innerHTML=`
+  <!-- 0: HOME -->
+  <div class="cpanel" id="cpanel0">
+    <div class="card-fun" style="background:linear-gradient(135deg,${color},${color}99);color:white;margin-bottom:20px;position:relative;overflow:hidden;">
+      <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:80px;opacity:0.12;font-family:'Amiri',serif;">بسم الله</div>
+      <div style="font-size:12px;opacity:0.8;margin-bottom:4px;font-weight:700;">${p.greeting}</div>
+      <div style="font-size:28px;font-weight:800;margin-bottom:4px;">Ahlan, ${p.name}! 👋</div>
+      <div style="font-size:14px;opacity:0.9;">${streak>0?`${streak}-day streak — Masha'Allah! 🔥`:"Start your streak — study for 10 minutes! 💪"}</div>
+    </div>
+    <!-- Characters -->
+    <div class="card" style="border-color:var(--sky);margin-bottom:20px;overflow:hidden;">
+      <div style="font-weight:800;font-size:15px;color:var(--sky-dark);margin-bottom:16px;text-align:center;">Your Adventure Friends 🌟</div>
+      <div style="display:flex;justify-content:space-around;align-items:flex-end;gap:8px;">
+        <div style="text-align:center;">
+          ${buildCharHTML("omar",90)}
+          <div style="font-size:12px;font-weight:800;color:var(--orange);margin-top:4px;">Omar</div>
+        </div>
+        <div style="text-align:center;">
+          ${buildCharHTML("hana",90)}
+          <div style="font-size:12px;font-weight:800;color:var(--green);margin-top:4px;">Hana</div>
+        </div>
+        <div style="text-align:center;">
+          ${buildCharHTML("zaky",90)}
+          <div style="font-size:12px;font-weight:800;color:var(--purple);margin-top:4px;">Zaky</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted);">They will pop up to share fun facts! Look out for them! 👀</div>
+    </div>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px;">
+      <div class="stat-card" style="background:var(--gold-light);border:2px solid var(--gold);"><span style="font-size:24px;">⭐</span><span class="stat-num" style="color:var(--gold-dark);">${stars}</span><span class="stat-label" style="color:var(--gold-dark);">Stars</span></div>
+      <div class="stat-card" style="background:#FFF0E8;border:2px solid var(--orange);"><span style="font-size:24px;">🔥</span><span class="stat-num" style="color:var(--orange-dark);">${streak}</span><span class="stat-label" style="color:var(--orange-dark);">Streak</span></div>
+      <div class="stat-card" style="background:var(--sky-light);border:2px solid var(--sky);"><span style="font-size:24px;">🔤</span><span class="stat-num" style="color:var(--sky-dark);">${letters}</span><span class="stat-label" style="color:var(--sky-dark);">Letters</span></div>
+      <div class="stat-card" style="background:var(--green-light);border:2px solid var(--green);"><span style="font-size:24px;">✅</span><span class="stat-num" style="color:var(--green-dark);">${lessons}</span><span class="stat-label" style="color:var(--green-dark);">Lessons</span></div>
+    </div>
+    <!-- 90-day progress -->
+    <div class="card" style="border-color:var(--orange);margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="font-size:26px;">🎯</div><div><div style="font-weight:800;font-size:16px;">90-Day Challenge</div><div style="font-size:13px;color:var(--muted);">Day ${streak} of 90 — ${90-streak} to go!</div></div></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${Math.min((streak/90)*100,100)}%;background:linear-gradient(90deg,var(--orange),var(--gold));"></div></div>
+    </div>
+    ${assigned.length>0?`<div class="card" style="border-color:var(--gold);background:var(--gold-light);margin-bottom:16px;"><div style="font-weight:800;font-size:15px;color:var(--gold-dark);margin-bottom:10px;">📋 Assigned by Mama</div>${assigned.map(a=>`<div style="padding:8px 12px;background:white;border-radius:10px;font-size:14px;margin-bottom:6px;border-left:4px solid var(--orange);">• ${a}</div>`).join("")}</div>`:""}
+    ${note?`<div class="card" style="border-color:var(--green);background:var(--green-light);margin-bottom:16px;"><div style="font-weight:800;font-size:15px;color:var(--green-dark);margin-bottom:6px;">💌 Note from Mama</div><div style="font-size:14px;color:var(--green-dark);line-height:1.7;">${note}</div></div>`:""}
+    <!-- Quick launch -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <button onclick="window.switchTab(1)" class="card-fun" style="background:linear-gradient(135deg,#FF6B35,#FF8C42);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">📅</div><div style="font-size:15px;font-weight:800;color:white;">16-Week Plan</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">Week ${currentWeek} active</div></button>
+      <button onclick="window.switchTab(2)" class="card-fun" style="background:linear-gradient(135deg,#FFD700,#FFA500);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">🔤</div><div style="font-size:15px;font-weight:800;color:white;">Alphabet Quest</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">+10 ⭐ per letter</div></button>
+      <button onclick="window.switchTab(3)" class="card-fun" style="background:linear-gradient(135deg,#00BFFF,#0066CC);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">📖</div><div style="font-size:15px;font-weight:800;color:white;">Quran Explorer</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">All 114 Surahs + audio</div></button>
+      <button onclick="window.switchTab(4)" class="card-fun" style="background:linear-gradient(135deg,#2ECC71,#1A8A47);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">🧠</div><div style="font-size:15px;font-weight:800;color:white;">Word Wizard</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">Spaced repetition</div></button>
+      <button onclick="window.switchTab(5)" class="card-fun" style="background:linear-gradient(135deg,#9B59B6,#6C3483);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">✍️</div><div style="font-size:15px;font-weight:800;color:white;">Write Arabic</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">Trace & practice</div></button>
+      <button onclick="window.switchTab(6)" class="card-fun" style="background:linear-gradient(135deg,#00897B,#00695C);border:none;cursor:pointer;text-align:left;"><div style="font-size:30px;margin-bottom:6px;">🎵</div><div style="font-size:15px;font-weight:800;color:white;">Tajweed Rules</div><div style="font-size:12px;color:rgba(255,255,255,0.85);">5 essential rules</div></button>
+    </div>
+  </div>
+
+  <!-- 1: CURRICULUM PLAN -->
+  <div class="cpanel" id="cpanel1" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:wiggle 2s infinite;">📅</div>
+      <div><div style="font-size:22px;font-weight:800;">16-Week Quranic Bridge Plan</div><div style="font-size:14px;color:var(--muted);">Based on the Kimi curriculum — your roadmap to reading Arabic!</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+      ${["Decode","Connect","Bridge","Understand","Mastery"].map((ph,i)=>{
+        const cols=["var(--orange)","var(--green)","var(--sky-dark)","var(--purple)","var(--gold-dark)"];
+        return `<div style="padding:6px 14px;border-radius:20px;background:${cols[i]}22;border:2px solid ${cols[i]};font-size:13px;font-weight:800;color:${cols[i]};">Phase ${i+1}: ${ph}</div>`;
+      }).join("")}
+    </div>
+    <div id="curriculumList"></div>
+  </div>
+
+  <!-- 2: ALPHABET -->
+  <div class="cpanel" id="cpanel2" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:wiggle 2s infinite;">🔤</div>
+      <div><div style="font-size:22px;font-weight:800;">Alphabet Quest</div><div style="font-size:14px;color:var(--muted);">Match the letter to its name. Every correct answer earns stars!</div></div>
+    </div>
+    <div id="alphaGame" class="card" style="border-color:var(--gold);text-align:center;"></div>
+  </div>
+
+  <!-- 3: READER -->
+  <div class="cpanel" id="cpanel3" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="font-size:38px;animation:float 3s infinite;">📖</div>
+      <div><div style="font-size:22px;font-weight:800;">Quran Explorer</div><div style="font-size:14px;color:var(--muted);">All 114 Surahs — Arabic, transliteration, meaning & audio</div></div>
+    </div>
+    <div class="card" style="border-color:var(--sky);margin-bottom:14px;">
+      <div style="font-weight:800;font-size:14px;color:var(--sky-dark);margin-bottom:10px;">📚 Choose a Surah (1–114)</div>
+      <input id="surahSearch" class="inp" placeholder="🔍 Search — Al-Fatiha, Al-Kahf, Ya-Sin, Ar-Rahman..." oninput="window.filterSurahs()" style="margin-bottom:10px;border-color:var(--sky);"/>
+      <div id="surahGrid" class="surah-grid"></div>
+    </div>
+    <div class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <button onclick="window.toggleOpt('tr')" id="trBtn" class="btn btn-sky btn-sm">Transliteration ✓</button>
+      <button onclick="window.toggleOpt('en')" id="enBtn" class="btn btn-green btn-sm">English ✓</button>
+      <button onclick="window.toggleOpt('rt')" id="rtBtn" class="btn btn-sm" style="background:#F0F4FF;color:var(--muted);">Root Words</button>
+      <button onclick="window.playReader()" id="playBtn" class="btn btn-primary btn-sm" style="margin-left:auto;">▶ Play All</button>
+    </div>
+    <div id="readerContent"></div>
+  </div>
+
+  <!-- 4: VOCAB -->
+  <div class="cpanel" id="cpanel4" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:bounce 2s infinite;">🧠</div>
+      <div><div style="font-size:22px;font-weight:800;">Word Wizard</div><div style="font-size:14px;color:var(--muted);">Spaced repetition — words come back until you truly know them!</div></div>
+    </div>
+    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;">
+      <div class="stat-card" style="background:var(--green-light);border:2px solid var(--green);min-width:90px;"><span style="font-size:20px;">✅</span><span class="stat-num" style="color:var(--green-dark);" id="vqC">0</span><span class="stat-label" style="color:var(--green-dark);">Correct</span></div>
+      <div class="stat-card" style="background:var(--rose-light);border:2px solid var(--rose);min-width:90px;"><span style="font-size:20px;">💪</span><span class="stat-num" style="color:var(--rose-dark);" id="vqW">0</span><span class="stat-label" style="color:var(--rose-dark);">Try again</span></div>
+      <div class="stat-card" style="background:var(--gold-light);border:2px solid var(--gold);min-width:90px;"><span style="font-size:20px;">⭐</span><span class="stat-num" style="color:var(--gold-dark);" id="vqS">0</span><span class="stat-label" style="color:var(--gold-dark);">Stars</span></div>
+      <div class="stat-card" style="background:var(--purple-light);border:2px solid var(--purple);min-width:90px;"><span style="font-size:20px;">📚</span><span class="stat-num" style="color:var(--purple-dark);" id="vqMastered">${(data.vocabMastered||[]).length}</span><span class="stat-label" style="color:var(--purple-dark);">Mastered</span></div>
+    </div>
+    <div id="vocabGame" class="card" style="border-color:var(--purple);max-width:560px;margin:0 auto;text-align:center;"></div>
+  </div>
+
+  <!-- 5: WRITING -->
+  <div class="cpanel" id="cpanel5" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:wiggle 2s infinite;">✍️</div>
+      <div><div style="font-size:22px;font-weight:800;">Write Arabic Letters</div><div style="font-size:14px;color:var(--muted);">Trace the letter on the canvas. Practice makes perfect!</div></div>
+    </div>
+    <div class="card" style="border-color:var(--purple);margin-bottom:16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+        <span style="font-size:14px;font-weight:700;color:var(--muted);">Choose a letter:</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="letterPicker"></div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;">
+        <div id="traceGuide" style="font-family:'Amiri',serif;font-size:100px;color:rgba(200,200,200,0.6);position:absolute;pointer-events:none;z-index:1;user-select:none;"></div>
+        <div style="position:relative;display:inline-block;">
+          <canvas id="writeCanvas" width="340" height="280"></canvas>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="window.clearCanvas()" class="btn btn-sm" style="background:#F0F4FF;color:var(--muted);">🗑️ Clear</button>
+        <button onclick="window.markWritten()" class="btn btn-green btn-sm">✓ I wrote it! (+5 ⭐)</button>
+      </div>
+    </div>
+    <div class="card" style="border-color:var(--green);background:var(--green-light);">
+      <div style="font-weight:800;font-size:14px;color:var(--green-dark);margin-bottom:8px;">✍️ How to write Arabic letters — tips</div>
+      <div style="font-size:13px;color:var(--green-dark);line-height:1.8;">• Arabic is always written from <strong>right to left</strong><br>• Always start from the dot or the thickest part<br>• Letters connect differently at the start, middle and end of words<br>• Practice each letter 5 times before moving on<br>• The best writers trace slowly and carefully — speed comes later!</div>
+    </div>
+  </div>
+
+  <!-- 6: TAJWEED -->
+  <div class="cpanel" id="cpanel6" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:pulse 2s infinite;">🎵</div>
+      <div><div style="font-size:22px;font-weight:800;">Tajweed Rules</div><div style="font-size:14px;color:var(--muted);">The beautiful rules for reciting Quran correctly — tap each rule to learn it!</div></div>
+    </div>
+    <div id="tajweedList"></div>
+  </div>`;
+
+  buildCurriculum();
+  buildSurahGrid();
+  initAlpha();
+  initVocab();
+  buildTajweed();
+  buildLetterPicker();
+}
+
+// ── CURRICULUM ──
+function buildCurriculum(){
+  const el2=el("curriculumList");if(!el2)return;
+  const phase_colors={Decode:"var(--orange)",Connect:"var(--green)",Bridge:"var(--sky-dark)",Understand:"var(--purple)",Mastery:"var(--gold-dark)"};
+  el2.innerHTML=CURRICULUM.map((w,i)=>{
+    const done=w.week<currentWeek;const curr=w.week===currentWeek;
+    const bgColor=done?"#F8F8F8":curr?w.color+"18":"white";
+    const borderColor=curr?w.color:done?"#E0E0E0":w.color+"44";
+    return `<div class="week-card ${done?'done':''} ${curr?'current':''}" style="background:${bgColor};border-color:${borderColor};" onclick="window.showWeekDetail(${i})">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:${done?"var(--green)":curr?w.color:"#E0E0E0"};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">${done?"✓":w.week}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+            <span style="font-size:10px;font-weight:800;color:${phase_colors[w.phase]||w.color};background:${phase_colors[w.phase]||w.color}18;padding:2px 8px;border-radius:10px;">${w.phase.toUpperCase()}</span>
+            ${curr?`<span style="font-size:10px;font-weight:800;color:white;background:var(--orange);padding:2px 8px;border-radius:10px;">CURRENT WEEK</span>`:""}
+          </div>
+          <div style="font-weight:800;font-size:15px;color:${done?"var(--muted)":"var(--text)"};">Week ${w.week}: ${w.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Goal: ${w.goal} · +${w.xp} ⭐</div>
+        </div>
+        <div style="font-size:20px;">${done?"✅":curr?"▶️":"🔒"}</div>
+      </div>
+      ${curr?`<div style="margin-top:12px;padding:12px;background:white;border-radius:10px;border:1px solid ${w.color}44;">
+        <div style="font-weight:800;font-size:13px;color:${w.color};margin-bottom:4px;">📋 Today's daily task:</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">${w.daily}</div>
+      </div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function showWeekDetail(idx){
+  const w=CURRICULUM[idx];
+  if(w.week>currentWeek) return;
+  alert(`Week ${w.week}: ${w.title}\n\nDaily Task:\n${w.daily}\n\nGoal: ${w.goal}\n\nReward: +${w.xp} ⭐`);
+};
+
+// ── SURAH GRID ──
+function buildSurahGrid(filter=""){
+  const grid=el("surahGrid");if(!grid)return;
+  const term=filter.toLowerCase();
+  const filtered=ALL_SURAHS.filter(s=>s.en.toLowerCase().includes(term)||s.tr.toLowerCase().includes(term)||s.ar.includes(filter)||String(s.n).includes(filter));
+  grid.innerHTML=filtered.map(s=>`<div class="surah-item ${s.n===currentSurahNum?'active':''}" onclick="window.loadSurahNum(${s.n})">
+    <div class="surah-num" style="${s.n===currentSurahNum?'background:var(--orange);color:white;':''}">${s.n}</div>
+    <div><div style="font-weight:800;font-size:13px;">${s.en}</div><div style="font-size:11px;color:var(--muted);">${s.tr} · ${s.v} verses</div></div>
+    <div style="margin-left:auto;font-family:'Amiri',serif;font-size:15px;color:var(--muted);">${s.ar}</div>
+  </div>`).join("");
+}
+function filterSurahs(){buildSurahGrid(el("surahSearch")?.value||"");};
+
+// ── LOAD SURAH via API ──
+async function loadSurahNum(num){
+  currentSurahNum=num;const s=ALL_SURAHS.find(x=>x.n===num);
+  buildSurahGrid(el("surahSearch")?.value||"");
+  const rc=el("readerContent");if(!rc)return;
+  rc.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;animation:spin 1s linear infinite;">⚙️</div>Loading ${s.en}…</div>`;
+  try{
+    // Fetch Arabic + English + transliteration (en.transliteration) in parallel
+    const [arRes,enRes,trRes]=await Promise.all([
+      fetch("https://api.alquran.cloud/v1/surah/"+num),
+      fetch("https://api.alquran.cloud/v1/surah/"+num+"/en.sahih"),
+      fetch("https://api.alquran.cloud/v1/surah/"+num+"/en.transliteration")
+    ]);
+    const arData=await arRes.json();
+    const enData=await enRes.json();
+    const trData=await trRes.json();
+    const arVerses=arData.data.ayahs;
+    const enVerses=enData.data.ayahs;
+    const trVerses=trData.data?.ayahs||[];
+    currentVerses=arVerses.map((av,i)=>({
+      a:av.text,
+      e:enVerses[i]?.text||"",
+      t:trVerses[i]?.text||(num===1?FATIHA_TRANSLIT[i]||"":""),
+      r:""
+    }));
+    renderReader(s);
+    // Save to progress
+    const sr=[...new Set([...(window._data?.surahsRead||[]),num])];
+    saveProgress({surahsRead:sr});
+  }catch(err){
+    rc.innerHTML=`<div class="card" style="border-color:var(--rose);text-align:center;padding:32px;"><div style="font-size:36px;margin-bottom:12px;">😕</div><div style="font-weight:800;font-size:17px;color:var(--rose-dark);">Couldn't load this Surah</div><div style="font-size:14px;color:var(--muted);margin-top:8px;">Check your internet connection and try again.</div><button onclick="window.loadSurahNum(${num})" class="btn btn-primary" style="margin-top:16px;">Try Again</button></div>`;
+  }
+}
+
+
+function renderReader(s){
+  const rc=el("readerContent");if(!rc)return;
+  let html=`<div style="text-align:center;padding:24px;background:linear-gradient(135deg,var(--sky-light),var(--green-light));border-radius:20px;border:2px solid var(--sky);margin-bottom:14px;">
+    <div style="font-family:'Amiri',serif;font-size:44px;color:var(--orange);direction:rtl;margin-bottom:6px;">${s.ar}</div>
+    <div style="font-size:17px;font-weight:800;">${s.en} — ${s.tr}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px;">Surah ${s.n} · ${s.v} verses</div>
+  </div>`;
+  currentVerses.forEach((v,i)=>{
+    html+=`<div class="verse-row" id="vrow${i}" onclick="window.hlVerse(${i})">
+      <div class="vnum" id="vnum${i}">${i+1}</div>
+      <div>
+        <div style="font-family:'Amiri',serif;font-size:28px;direction:rtl;text-align:right;line-height:2;margin-bottom:8px;">${v.a}</div>
+        ${showTr&&v.t?`<div style="font-size:13px;color:var(--sky-dark);font-style:italic;margin-bottom:5px;font-weight:600;">${v.t}</div>`:""}
+        ${showEn?`<div style="font-size:14px;color:var(--muted);line-height:1.7;">${v.e}</div>`:""}
+        ${showRt&&v.r?`<span class="badge" style="background:var(--green-light);color:var(--green-dark);border:1px solid var(--green);margin-top:6px;">Root: ${v.r}</span>`:""}
+      </div>
+    </div>`;
+  });
+  rc.innerHTML=html;
+}
+
+function toggleOpt(opt){
+  if(opt==="tr"){showTr=!showTr;const b=el("trBtn");if(b){b.className=showTr?"btn btn-sky btn-sm":"btn btn-sm";if(!showTr){b.style.background="#F0F4FF";b.style.color="var(--muted)";}else{b.style.background="";b.style.color="";}}};
+  if(opt==="en"){showEn=!showEn;const b=el("enBtn");if(b){b.className=showEn?"btn btn-green btn-sm":"btn btn-sm";if(!showEn){b.style.background="#F0F4FF";b.style.color="var(--muted)";}else{b.style.background="";b.style.color="";}}};
+  if(opt==="rt"){showRt=!showRt;const b=el("rtBtn");if(b){b.className=showRt?"btn btn-teal btn-sm":"btn btn-sm";if(!showRt){b.style.background="#F0F4FF";b.style.color="var(--muted)";}else{b.style.background="";b.style.color="";}}};
+  const s=ALL_SURAHS.find(x=>x.n===currentSurahNum);
+  if(s&&currentVerses.length)renderReader(s);
+};
+
+function hlVerse(i){
+  document.querySelectorAll(".verse-row").forEach(r=>r.classList.remove("playing"));
+  el("vrow"+i)?.classList.add("playing");
+};
+
+// ── AUDIO PLAYBACK ──
+function playReader(){
+  const btn=el("playBtn");
+  if(readerPlaying){
+    readerPlaying=false;
+    if(window._activeAudio){window._activeAudio.pause();window._activeAudio.src="";}
+    clearTimeout(readerTimer);
+    if(btn){btn.textContent="▶ Play All";btn.className="btn btn-primary btn-sm";}
+    let msg=el("audioMsg");if(msg)msg.remove();
+    document.querySelectorAll(".verse-row").forEach(r=>r.classList.remove("playing"));
+    return;
+  }
+  if(!currentVerses.length){loadSurahNum(currentSurahNum);return;}
+  let msgEl=el("audioMsg");
+  if(!msgEl){
+    msgEl=document.createElement("div");msgEl.id="audioMsg";
+    msgEl.style.cssText="font-size:13px;font-weight:700;color:var(--sky-dark);margin-top:10px;text-align:center;padding:8px;background:var(--sky-light);border-radius:8px;";
+    const toolbar=btn?.parentElement;if(toolbar)toolbar.after(msgEl);
+  }
+  readerPlaying=true;readerIdx=0;
+  if(btn){btn.textContent="⏹ Stop";btn.className="btn btn-gold btn-sm";}
+  msgEl.textContent="🎵 Loading…";msgEl.style.color="var(--sky-dark)";
+
+  function playVerse(idx){
+    if(!readerPlaying)return;
+    if(idx>=currentVerses.length){
+      readerPlaying=false;
+      if(window._activeAudio){window._activeAudio.pause();window._activeAudio.src="";}
+      if(btn){btn.textContent="▶ Play All";btn.className="btn btn-primary btn-sm";}
+      if(msgEl){msgEl.textContent="✅ Complete! Masha'Allah!";setTimeout(()=>{if(msgEl)msgEl.remove();},3000);}
+      document.querySelectorAll(".verse-row").forEach(r=>r.classList.remove("playing"));
+      if(window._data){
+        const ns=(window._data.stars||0)+30;
+        const sr=[...new Set([...(window._data.surahsRead||[]),currentSurahNum])];
+        saveProgress({stars:ns,surahsRead:sr});
+      }
+      showReward("📖","Surah Complete!","You listened to the whole Surah! Masha'Allah! 🌟",30);
+      return;
+    }
+    hlVerse(idx);
+    el("vrow"+idx)?.scrollIntoView({behavior:"smooth",block:"center"});
+    if(msgEl)msgEl.textContent="🎵 Verse "+(idx+1)+" of "+currentVerses.length;
+    const absVerse=getAbsoluteVerseNum(currentSurahNum,idx+1);
+    const urls=["https://cdn.islamic.network/quran/audio/128/ar.alafasy/"+absVerse+".mp3","https://cdn.islamic.network/quran/audio/128/ar.abdulbasitmurattal/"+absVerse+".mp3"];
+    let urlIdx=0;
+    function tryPlay(){
+      const audio=new Audio();window._activeAudio=audio;
+      audio.src=urls[urlIdx];
+      audio.oncanplaythrough=function(){
+        if(!readerPlaying)return;
+        const p=audio.play();
+        if(p)p.catch(err=>{
+          if(msgEl){msgEl.style.color="var(--rose-dark)";msgEl.textContent="⚠️ Tap Stop then Play again to enable audio.";}
+          readerPlaying=false;if(btn){btn.textContent="▶ Play All";btn.className="btn btn-primary btn-sm";}
+        });
+      };
+      audio.onended=function(){if(!readerPlaying)return;readerTimer=setTimeout(()=>{readerIdx++;playVerse(readerIdx);},400);};
+      audio.onerror=function(){urlIdx++;if(urlIdx<urls.length){tryPlay();return;}readerTimer=setTimeout(()=>{readerIdx++;playVerse(readerIdx);},1000);};
+      audio.load();
+    }
+    tryPlay();
+  }
+  playVerse(0);
+};
+
+// ── ALPHABET GAME ──
+function initAlpha(){aQueue=shuffle(ALPHABET).slice(0,8);aIdx=0;aScore=0;aAnswered=false;renderAlpha();}
+
+function renderAlpha(){
+  const e=el("alphaGame");if(!e)return;
+  if(aIdx>=aQueue.length){
+    const earned=aScore*10;
+    const ns=(window._data?.stars||0)+earned;
+    const nl=[...new Set([...(window._data?.lettersLearned||[]),...aQueue.map(q=>q.l)])];
+    saveProgress({stars:ns,lettersLearned:nl});
+    e.innerHTML=`<div style="padding:20px;"><div style="font-size:60px;margin-bottom:12px;">🎉</div><div style="font-size:24px;font-weight:800;color:var(--orange);">Round Complete!</div><div style="font-size:15px;color:var(--muted);margin:8px 0;">You scored ${aScore}/${aQueue.length} — +${earned} ⭐ saved!</div><button onclick="window.restartAlpha()" class="btn btn-primary" style="margin-top:16px;">Play Again ↻</button></div>`;
+    showReward("🏆","Alphabet Hero!","Stars saved! ⭐",earned);return;
+  }
+  aAnswered=false;
+  const curr=aQueue[aIdx];
+  const opts=shuffle(ALPHABET.filter(x=>x.n!==curr.n)).slice(0,3);
+  const choices=shuffle([curr,...opts]);
+  e.innerHTML=`<div style="display:flex;gap:6px;justify-content:center;margin-bottom:18px;">${aQueue.map((_,i)=>`<div style="width:26px;height:26px;border-radius:50%;border:3px solid ${i<aIdx?"var(--green)":i===aIdx?"var(--orange)":"var(--border)"};background:${i<aIdx?"var(--green)":i===aIdx?"var(--orange-light)":"white"};"></div>`).join("")}</div>
+    <div id="alphaFb" style="min-height:34px;font-size:15px;font-weight:800;margin-bottom:8px;"></div>
+    <div style="font-family:'Amiri',serif;font-size:108px;color:var(--orange);line-height:1;margin:8px 0;animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;">${curr.l}</div>
+    <div style="font-size:14px;color:var(--muted);font-style:italic;margin-bottom:20px;">${curr.m}</div>
+    <div style="font-size:14px;color:var(--muted);font-weight:700;margin-bottom:14px;">Which letter is this?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:360px;margin:0 auto;">
+      ${choices.map(ch=>`<button class="choice-btn alpha-opt" data-n="${encodeURIComponent(ch.n)}" data-correct="${encodeURIComponent(curr.n)}">${ch.n}</button>`).join("")}
+    </div>`;
+  document.querySelectorAll(".alpha-opt").forEach(btn=>{
+    btn.addEventListener("click",function(){
+      if(aAnswered)return;aAnswered=true;
+      const chosen=decodeURIComponent(this.dataset.n);
+      const correct=decodeURIComponent(this.dataset.correct);
+      const fb=el("alphaFb");
+      if(chosen===correct){this.classList.add("correct");if(fb){fb.textContent="✓ Masha'Allah! Correct!";fb.style.color="var(--green-dark)";}aScore++;setTimeout(()=>{aIdx++;renderAlpha();},1000);}
+      else{this.classList.add("wrong");if(fb){fb.textContent=`✗ It's "${correct}" — remember the picture!`;fb.style.color="var(--rose-dark)";}document.querySelectorAll(".alpha-opt").forEach(b=>{if(decodeURIComponent(b.dataset.n)===correct)b.classList.add("correct");});setTimeout(()=>{aIdx++;renderAlpha();},2200);}
+    });
+  });
+}
+function restartAlpha(){aQueue=shuffle(ALPHABET).slice(0,8);aIdx=0;aScore=0;renderAlpha();};
+
+// ── VOCAB WITH SPACED REPETITION ──
+function initVocab(){
+  vQueue=VOCAB.filter(v=>v.next<=0);
+  if(!vQueue.length)vQueue=VOCAB.map(v=>({...v,next:0}));
+  vQueue=shuffle(vQueue);
+  vIdx=0;vCorrect=0;vWrong=0;vSessionStars=0;vAnswered=false;
+  renderVocab();
+}
+
+function renderVocab(){
+  const e=el("vocabGame");if(!e)return;
+  if(vIdx>=vQueue.length){
+    e.innerHTML=`<div style="padding:20px;"><div style="font-size:48px;margin-bottom:12px;">🎓</div><div style="font-size:20px;font-weight:800;color:var(--purple);">Session Complete!</div><div style="font-size:14px;color:var(--muted);margin:8px 0;">Score: ${vCorrect}/${vCorrect+vWrong} · +${vSessionStars} ⭐</div><div style="font-size:13px;color:var(--purple);font-weight:700;margin-bottom:16px;">Words you got wrong will come back sooner — that's spaced repetition working! 🔁</div><button onclick="window.initVocab()" class="btn btn-purple" style="margin-top:8px;">Next Session →</button></div>`;
+    return;
+  }
+  vAnswered=false;
+  const curr=vQueue[vIdx];
+  const shuffledOpts=shuffle([...curr.opts]);
+  e.innerHTML=`<div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">Level ${curr.lvl||0}/4 · What does this mean?</div>
+    <div style="font-family:'Amiri',serif;font-size:68px;direction:rtl;color:var(--orange);margin:10px 0;line-height:1;">${curr.a}</div>
+    <div style="font-size:13px;color:var(--sky-dark);font-weight:700;font-style:italic;margin-bottom:16px;">Root: ${curr.r}</div>
+    <div id="vqFb" style="min-height:30px;font-size:15px;font-weight:800;margin-bottom:10px;"></div>
+    <div id="vqOptGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      ${shuffledOpts.map(opt=>`<button class="choice-btn vq-opt" data-opt="${encodeURIComponent(opt)}" data-correct="${encodeURIComponent(curr.e)}">${opt}</button>`).join("")}
+    </div>
+    <div id="vqNext" style="display:none;text-align:center;"><button id="vqNextBtn" class="btn btn-primary">Next Word →</button></div>`;
+  document.querySelectorAll(".vq-opt").forEach(btn=>{
+    btn.addEventListener("click",function(){
+      if(vAnswered)return;vAnswered=true;
+      const chosen=decodeURIComponent(this.dataset.opt);
+      const correct=decodeURIComponent(this.dataset.correct);
+      const fb=el("vqFb");
+      if(chosen===correct){
+        this.classList.add("correct");
+        if(fb){fb.textContent="Masha'Allah! That's right! ✓";fb.style.color="var(--green-dark)";}
+        vCorrect++;vSessionStars+=10;
+        if(el("vqC"))el("vqC").textContent=vCorrect;
+        if(el("vqS"))el("vqS").textContent=vSessionStars;
+        curr.lvl=Math.min((curr.lvl||0)+1,4);
+        if(window._data){
+          const ns=(window._data.stars||0)+10;
+          const nm=[...new Set([...(window._data.vocabMastered||[]),curr.e])];
+          saveProgress({stars:ns,vocabMastered:nm});
+          window._data.stars=ns;
+          if(el("vqMastered"))el("vqMastered").textContent=nm.length;
+        }
+        setTimeout(()=>{vIdx++;renderVocab();},900);
+      } else {
+        this.classList.add("wrong");
+        if(fb){fb.textContent=`Not quite — it's "${correct}"! 💪`;fb.style.color="var(--rose-dark)";}
+        document.querySelectorAll(".vq-opt").forEach(b=>{if(decodeURIComponent(b.dataset.opt)===correct)b.classList.add("correct");});
+        vWrong++;curr.lvl=Math.max((curr.lvl||0)-1,0);
+        if(el("vqW"))el("vqW").textContent=vWrong;
+        const nxt=el("vqNext");if(nxt)nxt.style.display="block";
+      }
+    });
+  });
+  const nb=el("vqNextBtn");if(nb)nb.addEventListener("click",()=>{vIdx++;renderVocab();});
+}
+
+
+// ── TAJWEED ──
+function buildTajweed(){
+  const e=el("tajweedList");if(!e)return;
+  e.innerHTML=TAJWEED.map((t,i)=>`<div class="tajweed-card" style="border-color:${t.color};background:${t.bg};" onclick="window.expandTajweed(${i})">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:${t.color};display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:22px;color:white;flex-shrink:0;">${t.arabic[0]}</div>
+      <div>
+        <div style="font-weight:800;font-size:18px;color:${t.color};">${t.name} — ${t.arabic}</div>
+        <div style="font-size:13px;color:var(--muted);">Tap to learn this rule</div>
+      </div>
+      <div id="tj-arr-${i}" style="margin-left:auto;font-size:20px;color:${t.color};">▼</div>
+    </div>
+    <div id="tj-detail-${i}" style="display:none;">
+      <div style="font-size:14px;color:var(--text);line-height:1.8;margin-bottom:14px;">${t.desc}</div>
+      <div style="background:white;border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid ${t.color}44;">
+        <div style="font-size:12px;font-weight:800;color:${t.color};margin-bottom:6px;">📖 Example from Quran:</div>
+        <div class="tajweed-example" style="color:${t.color};">${t.example}</div>
+        <div style="font-size:13px;color:var(--muted);font-style:italic;">${t.ex_note}</div>
+      </div>
+      <div style="background:${t.color}15;border-radius:12px;padding:14px;border-left:4px solid ${t.color};">
+        <div style="font-size:13px;font-weight:800;color:${t.color};margin-bottom:4px;">💡 Memory Tip:</div>
+        <div style="font-size:14px;color:var(--text);">${t.tip}</div>
+      </div>
+    </div>
+  </div>`).join("");
+}
+
+function expandTajweed(idx){
+  const detail=el("tj-detail-"+idx);const arr=el("tj-arr-"+idx);
+  if(!detail)return;
+  const isOpen=detail.style.display==="block";
+  detail.style.display=isOpen?"none":"block";
+  if(arr)arr.textContent=isOpen?"▼":"▲";
+};
+
+// ── WRITING CANVAS ──
+function buildLetterPicker(){
+  const e=el("letterPicker");if(!e)return;
+  e.innerHTML=ALPHABET.map((lt,i)=>`<button onclick="window.selectLetter('${lt.l}','${lt.n}')" style="width:38px;height:38px;border-radius:8px;border:2px solid var(--border);background:white;font-family:'Amiri',serif;font-size:20px;cursor:pointer;transition:all 0.2s;" title="${lt.n}">${lt.l}</button>`).join("");
+  selectLetter(ALPHABET[0].l,ALPHABET[0].n);
+}
+
+function selectLetter(letter,name){
+  document.querySelectorAll("#letterPicker button").forEach(b=>{b.style.borderColor="var(--border)";b.style.background="white";});
+  const guide=el("traceGuide");if(guide){guide.textContent=letter;guide.style.cssText="font-family:'Amiri',serif;font-size:200px;color:rgba(200,200,200,0.4);position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none;z-index:1;user-select:none;";}
+  // Show name below canvas
+  const canvas=el("writeCanvas");
+  if(canvas){
+    const ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.font="16px 'Baloo 2'";ctx.fillStyle="rgba(107,122,153,0.6)";ctx.textAlign="center";
+    ctx.fillText("Trace the letter: "+name+" ("+letter+")",canvas.width/2,canvas.height-16);
+  }
+};
+
+function initWriting(){
+  const canvas=el("writeCanvas");if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  ctx.strokeStyle=PROFILES[window._prof||"meer"]?.color||"#0D7377";
+  ctx.lineWidth=5;ctx.lineCap="round";ctx.lineJoin="round";
+  
+  function getPos(e){
+    const rect=canvas.getBoundingClientRect();
+    if(e.touches){return{x:(e.touches[0].clientX-rect.left)*(canvas.width/rect.width),y:(e.touches[0].clientY-rect.top)*(canvas.height/rect.height)};}
+    return{x:(e.clientX-rect.left)*(canvas.width/rect.width),y:(e.clientY-rect.top)*(canvas.height/rect.height)};
+  }
+  canvas.onmousedown=canvas.ontouchstart=function(e){e.preventDefault();isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;ctx.beginPath();ctx.arc(p.x,p.y,2,0,Math.PI*2);ctx.fillStyle=ctx.strokeStyle;ctx.fill();};
+  canvas.onmousemove=canvas.ontouchmove=function(e){e.preventDefault();if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;};
+  canvas.onmouseup=canvas.ontouchend=function(){isDrawing=false;};
+  canvas.onmouseleave=function(){isDrawing=false;};
+}
+function clearCanvas(){const canvas=el("writeCanvas");if(!canvas)return;const ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);};
+function markWritten(){
+  const ns=(window._data?.stars||0)+5;
+  saveProgress({stars:ns});window._data.stars=ns;
+  showReward("✍️","Great writing!","Keep practising — +5 ⭐ saved!",5);
+};
+
+// ── PARENT DASHBOARD ──
+function buildParentUI(){
+  el("parent-nav").innerHTML=`<nav><div class="nav-gem" style="background:linear-gradient(135deg,var(--orange),var(--purple));">🎓</div><div><div style="font-size:17px;font-weight:800;">Mama FH's Dashboard</div><span style="font-size:11px;color:var(--muted);display:block;">The Arabic Adventurers — parent view</span></div><div style="margin-left:auto;display:flex;gap:10px;align-items:center;"><div style="font-size:13px;color:var(--muted);">fikahomeschool@gmail.com</div><button onclick="window.doLogout()" class="btn" style="padding:7px 14px;background:#F0F4FF;color:var(--muted);font-size:13px;">Sign out</button></div></nav>`;
+  const children=Object.entries(allChildData);
+  const totalStars=children.reduce((s,[_,d])=>s+(d.stars||0),0);
+  const avgStreak=children.length?Math.round(children.reduce((s,[_,d])=>s+(d.streak||0),0)/children.length):0;
+  let html=`<div style="font-size:26px;font-weight:800;margin-bottom:6px;">🎓 Mama's Dashboard</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:24px;">Track progress, assign work, leave notes and check curriculum status</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:28px;">
+    <div class="stat-card" style="background:var(--sky-light);border:2px solid var(--sky);"><span style="font-size:24px;">👨‍👩‍👧‍👦</span><span class="stat-num" style="color:var(--sky-dark);">${children.length}</span><span class="stat-label" style="color:var(--sky-dark);">Adventurers</span></div>
+    <div class="stat-card" style="background:var(--gold-light);border:2px solid var(--gold);"><span style="font-size:24px;">⭐</span><span class="stat-num" style="color:var(--gold-dark);">${totalStars}</span><span class="stat-label" style="color:var(--gold-dark);">Total stars</span></div>
+    <div class="stat-card" style="background:#FFF0E8;border:2px solid var(--orange);"><span style="font-size:24px;">🔥</span><span class="stat-num" style="color:var(--orange-dark);">${avgStreak}</span><span class="stat-label" style="color:var(--orange-dark);">Avg streak</span></div>
+    <div class="stat-card" style="background:var(--green-light);border:2px solid var(--green);"><span style="font-size:24px;">📚</span><span class="stat-num" style="color:var(--green-dark);">${children.reduce((s,[_,d])=>s+(d.lessonsComplete?.length||0),0)}</span><span class="stat-label" style="color:var(--green-dark);">Lessons</span></div>
+  </div>
+  <div style="font-size:20px;font-weight:800;margin-bottom:14px;">Individual Progress</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-bottom:32px;">
+  ${children.map(([uid,d])=>{
+    const prof=PROFILES[d.nickname]||{emoji:"⭐",color:"#0D7377",accent:"#E0F5F5"};
+    const wk=d.currentWeek||1;const currW=CURRICULUM[wk-1];
+    return `<div class="card" style="border-color:${prof.color};border-width:3px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:50px;height:50px;border-radius:14px;background:${prof.accent};border:3px solid ${prof.color};display:flex;align-items:center;justify-content:center;font-size:26px;">${prof.emoji}</div>
+        <div><div style="font-size:18px;font-weight:800;">${d.displayName||d.nickname}</div><div style="font-size:12px;color:var(--muted);">Age ${d.age||"?"} · Last active: ${d.lastActive||"never"}</div></div>
+        <div style="margin-left:auto;"><div class="pill" style="background:var(--gold-light);color:var(--gold-dark);border:2px solid var(--gold);">⭐ ${d.stars||0}</div></div>
+      </div>
+      <!-- Curriculum week -->
+      <div style="background:${prof.color}11;border-radius:10px;padding:10px;margin-bottom:12px;border:1px solid ${prof.color}33;">
+        <div style="font-size:11px;font-weight:800;color:${prof.color};margin-bottom:2px;">📅 CURRICULUM PROGRESS</div>
+        <div style="font-size:13px;font-weight:700;">Week ${wk}/16: ${currW?.title||"Complete!"}</div>
+        <div class="prog-bar" style="margin-top:6px;"><div class="prog-fill" style="width:${((wk-1)/16)*100}%;background:${prof.color};"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">
+        ${[["🔤",(d.lettersLearned?.length||0),"Letters"],["🧠",(d.vocabMastered?.length||0),"Words"],["📖",(d.surahsRead?.length||0),"Surahs"],["🔥",(d.streak||0),"Streak"]].map(([e2,n2,l2])=>`<div style="background:${prof.accent};border-radius:8px;padding:8px;text-align:center;border:1px solid ${prof.color}33;"><div style="font-size:14px;">${e2}</div><div style="font-weight:800;font-size:15px;color:${prof.color};">${n2}</div><div style="font-size:10px;color:var(--muted);font-weight:700;">${l2}</div></div>`).join("")}
+      </div>
+      ${(d.assignedWork||[]).length>0?`<div style="margin-bottom:10px;padding:10px;background:var(--gold-light);border-radius:10px;border:2px solid var(--gold);"><div style="font-size:12px;font-weight:800;color:var(--gold-dark);margin-bottom:6px;">📋 Assignments</div>${(d.assignedWork||[]).map(a=>`<div style="font-size:12px;padding:2px 0;">• ${a}</div>`).join("")}</div>`:""}
+      <input id="asgn_${uid}" class="inp" placeholder="Assign task e.g. Practise Al-Ikhlas 3×" style="margin-bottom:8px;border-color:${prof.color};font-size:13px;padding:9px 12px;"/>
+      <button onclick="window.doAssign('${uid}')" class="btn btn-sm" style="width:100%;background:${prof.color};color:white;margin-bottom:10px;">Assign Task ✓</button>
+      <!-- Advance week -->
+      <button onclick="window.advanceWeek('${uid}',${wk})" class="btn btn-sm" style="width:100%;background:var(--green);color:white;margin-bottom:10px;">✅ Mark Week ${wk} Complete → Week ${Math.min(wk+1,16)}</button>
+      <textarea id="note_${uid}" rows="2" class="inp" placeholder="Encouraging note for ${d.displayName||d.nickname}..." style="resize:vertical;margin-bottom:8px;border-color:var(--green);font-size:13px;">${d.weeklyNote||""}</textarea>
+      <button onclick="window.saveNote('${uid}')" class="btn btn-green btn-sm" style="width:100%;">Save Note 💌</button>
+    </div>`;
+  }).join("")}
+  </div>
+  <div class="card" style="border-color:var(--purple);background:var(--purple-light);">
+    <div style="font-size:16px;font-weight:800;color:var(--purple-dark);margin-bottom:10px;">🌙 Today's Bedtime Learning</div>
+    <div style="font-size:15px;color:var(--purple-dark);line-height:1.8;">The Arabic word <em style="color:var(--orange);font-weight:800;">Iqra (إقرأ)</em> — the very first word revealed to the Prophet ﷺ — means "Read!" The Quran commanded learning before it commanded prayer, fasting or any other act of worship. Tell your children tonight: in Islam, seeking knowledge is an act of worship. Every lesson they complete on this app is an act of ibadah. 🌟</div>
+  </div>`;
+  el("parent-content").innerHTML=html;
+}
+
+async function doAssign(uid){
+  const val=el("asgn_"+uid)?.value?.trim();
+  if(!val){alert("Please type a task first!");return;}
+  const ref=doc(db,"users",uid);
+  await updateDoc(ref,{assignedWork:arrayUnion(val)});
+  el("asgn_"+uid).value="";
+  alert("✓ Task assigned!");
+};
+
+async function advanceWeek(uid,currentWk){
+  if(currentWk>=16){alert("They have completed all 16 weeks! Masha'Allah! 🎓");return;}
+  const newWk=currentWk+1;
+  const ref=doc(db,"users",uid);
+  await updateDoc(ref,{currentWeek:newWk});
+  alert("✓ Advanced to Week "+newWk+"!");
+  await loadParent();
+};
+
+async function saveNote(uid){
+  const note=el("note_"+uid)?.value||"";
+  const ref=doc(db,"users",uid);
+  await updateDoc(ref,{weeklyNote:note});
+  alert("✓ Note saved! 💌");
+};
+
+// ── REWARDS ──
+function showReward(emoji,title,msg,n){
+  el("rwEmoji").textContent=emoji;el("rwTitle").textContent=title;el("rwMsg").textContent=msg;
+  el("rwStars").textContent="⭐".repeat(Math.min(Math.ceil(n/10),5))||"⭐";
+  el("rewardOverlay").classList.add("show");confetti();
+}
+window.closeReward=function(){el("rewardOverlay").classList.remove("show");};
+
+function confetti(){
+  const colors=["#FF6B35","#FFD700","#2ECC71","#00BFFF","#9B59B6","#FF4081"];
+  for(let i=0;i<70;i++){
+    const c=document.createElement("div");const sz=Math.random()*9+4;const dx=(Math.random()-0.5)*500;
+    c.style.cssText=`position:fixed;top:${Math.random()*20}%;left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?"50%":"3px"};transform:rotate(${Math.random()*360}deg);pointer-events:none;z-index:9999;--dx:${dx}px;animation:cfFall ${1+Math.random()*2}s ease-in forwards;`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),3500);
+  }
+}
+
+// ── ANIMATED CLOUDS ──
+(function(){
+  const w=el("bgWrap");if(!w)return;
+  for(let i=0;i<8;i++){
+    const c=document.createElement("div");const size=80+Math.random()*120;const top=Math.random()*60;const dur=20+Math.random()*30;const delay=-Math.random()*30;
+    c.style.cssText=`position:absolute;top:${top}%;width:${size}px;height:${size*0.4}px;background:rgba(255,255,255,0.72);border-radius:${size}px;animation:cloudDrift ${dur}s ${delay}s linear infinite;`;
+    const b1=document.createElement("div");b1.style.cssText=`position:absolute;top:-${size*0.25}px;left:${size*0.1}px;width:${size*0.5}px;height:${size*0.5}px;background:rgba(255,255,255,0.72);border-radius:50%;`;
+    const b2=document.createElement("div");b2.style.cssText=`position:absolute;top:-${size*0.15}px;left:${size*0.35}px;width:${size*0.35}px;height:${size*0.35}px;background:rgba(255,255,255,0.72);border-radius:50%;`;
+    c.appendChild(b1);c.appendChild(b2);w.appendChild(c);
+  }
+})();
+
+
+// ══════════════════════════════════════════════════════════
+// PHASE 3: MEMORISATION TRACKER + DAILY TIMER
+// ══════════════════════════════════════════════════════════
+
+// ── JUZ AMMA SURAHS (78–114) for memorisation tracking ──
+const HIFZ_SURAHS = [
+  {n:78,ar:"النبأ",en:"An-Naba",v:40},{n:79,ar:"النازعات",en:"An-Naziat",v:46},
+  {n:80,ar:"عبس",en:"Abasa",v:42},{n:81,ar:"التكوير",en:"At-Takwir",v:29},
+  {n:82,ar:"الانفطار",en:"Al-Infitar",v:19},{n:83,ar:"المطففين",en:"Al-Mutaffifin",v:36},
+  {n:84,ar:"الانشقاق",en:"Al-Inshiqaq",v:25},{n:85,ar:"البروج",en:"Al-Buruj",v:22},
+  {n:86,ar:"الطارق",en:"At-Tariq",v:17},{n:87,ar:"الأعلى",en:"Al-Ala",v:19},
+  {n:88,ar:"الغاشية",en:"Al-Ghashiyah",v:26},{n:89,ar:"الفجر",en:"Al-Fajr",v:30},
+  {n:90,ar:"البلد",en:"Al-Balad",v:20},{n:91,ar:"الشمس",en:"Ash-Shams",v:15},
+  {n:92,ar:"الليل",en:"Al-Layl",v:21},{n:93,ar:"الضحى",en:"Ad-Duha",v:11},
+  {n:94,ar:"الشرح",en:"Ash-Sharh",v:8},{n:95,ar:"التين",en:"At-Tin",v:8},
+  {n:96,ar:"العلق",en:"Al-Alaq",v:19},{n:97,ar:"القدر",en:"Al-Qadr",v:5},
+  {n:98,ar:"البينة",en:"Al-Bayyinah",v:8},{n:99,ar:"الزلزلة",en:"Az-Zalzalah",v:8},
+  {n:100,ar:"العاديات",en:"Al-Adiyat",v:11},{n:101,ar:"القارعة",en:"Al-Qariah",v:11},
+  {n:102,ar:"التكاثر",en:"At-Takathur",v:8},{n:103,ar:"العصر",en:"Al-Asr",v:3},
+  {n:104,ar:"الهمزة",en:"Al-Humazah",v:9},{n:105,ar:"الفيل",en:"Al-Fil",v:5},
+  {n:106,ar:"قريش",en:"Quraysh",v:4},{n:107,ar:"الماعون",en:"Al-Maun",v:7},
+  {n:108,ar:"الكوثر",en:"Al-Kawthar",v:3},{n:109,ar:"الكافرون",en:"Al-Kafirun",v:6},
+  {n:110,ar:"النصر",en:"An-Nasr",v:3},{n:111,ar:"المسد",en:"Al-Masad",v:5},
+  {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},
+  {n:114,ar:"الناس",en:"An-Nas",v:6},
+];
+
+const STATUS_LABELS = ["Not started","Learning","Reviewing","Memorised! ✓"];
+const STATUS_COLORS = ["var(--border)","var(--orange)","var(--sky)","var(--green)"];
+const STATUS_BG     = ["#F8F8F8","var(--orange-light)","var(--sky-light)","var(--green-light)"];
+
+function buildMemTracker(){
+  const e=el("memTracker"); if(!e) return;
+  const hifz = window._data?.hifzData || {};
+  const memorised = Object.values(hifz).filter(v=>v===3).length;
+  const learning  = Object.values(hifz).filter(v=>v===1||v===2).length;
+
+  let html = `<div class="card" style="border-color:var(--green);background:var(--green-light);margin-bottom:20px;">
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;">
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:var(--green-dark);">${memorised}</div><div style="font-size:12px;font-weight:700;color:var(--green-dark);">Memorised ✓</div></div>
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:var(--orange-dark);">${learning}</div><div style="font-size:12px;font-weight:700;color:var(--orange-dark);">In progress</div></div>
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:var(--sky-dark);">${HIFZ_SURAHS.length-memorised-learning}</div><div style="font-size:12px;font-weight:700;color:var(--sky-dark);">Not started</div></div>
+      <div style="flex:1;min-width:120px;">
+        <div class="prog-bar" style="height:14px;"><div class="prog-fill" style="width:${(memorised/HIFZ_SURAHS.length*100).toFixed(0)}%;background:var(--green);"></div></div>
+        <div style="font-size:12px;color:var(--green-dark);font-weight:700;margin-top:4px;">${(memorised/HIFZ_SURAHS.length*100).toFixed(0)}% of Juz Amma memorised</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;">Tap a Surah to update its status:</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+    ${STATUS_LABELS.map((l,i)=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);"><div style="width:14px;height:14px;border-radius:3px;background:${STATUS_COLORS[i]};"></div>${l}</div>`).join("")}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
+  ${HIFZ_SURAHS.map(s=>{
+    const st = hifz[s.n] || 0;
+    return `<div onclick="window.cycleHifz(${s.n})" style="padding:12px;border-radius:12px;border:2px solid ${STATUS_COLORS[st]};background:${STATUS_BG[st]};cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${STATUS_COLORS[st]};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;flex-shrink:0;">${s.n}</div>
+      <div><div style="font-weight:800;font-size:13px;">${s.en}</div>
+      <div style="font-family:'Amiri',serif;font-size:14px;direction:rtl;">${s.ar}</div>
+      <div style="font-size:11px;color:var(--muted);">${s.v} verses · ${STATUS_LABELS[st]}</div></div>
+    </div>`;
+  }).join("")}
+  </div>`;
+  e.innerHTML = html;
+}
+
+async function cycleHifz(surahNum){
+  if(!window._data) return;
+  const hifz = {...(window._data.hifzData||{})};
+  const current = hifz[surahNum]||0;
+  hifz[surahNum] = (current+1)%4;
+  if(hifz[surahNum]===3){
+    // Memorised! Award big stars
+    const ns=(window._data.stars||0)+100;
+    await saveProgress({hifzData:hifz, stars:ns});
+    window._data.stars=ns;
+    showReward("📿","Surah Memorised!","Allahu Akbar! You memorised a Surah! +100 ⭐",100);
+  } else {
+    await saveProgress({hifzData:hifz});
+  }
+  window._data.hifzData = hifz;
+  buildMemTracker();
+}
+
+// ── DAILY STUDY TIMER ──
+const DAILY_ROUTINE = [
+  {title:"🔤 Mechanics",desc:"New letters, words, or Tajweed rule. Use the Alphabet Quest or Tajweed tab.",mins:10,color:"var(--orange)"},
+  {title:"📖 Arabic Reading",desc:"Read 3–5 verses from the Quran. Slow and deliberate. No rushing!",mins:10,color:"var(--sky)"},
+  {title:"🌉 The Bridge",desc:"Read English side-by-side. Match words. Paraphrase the meaning aloud.",mins:10,color:"var(--green)"},
+  {title:"📝 Review",desc:"Quick recap of new words learned today. Use the Word Wizard tab.",mins:5,color:"var(--purple)"},
+  {title:"🎵 Audio Immersion",desc:"Listen to the recitation of what you just read. Repeat softly as you listen.",mins:5,color:"var(--teal)"},
+];
+
+let timerSeconds=0, timerRunning=false, timerInterval=null, timerStep=0;
+
+function buildDailyTimer(){
+  const e=el("dailyTimer"); if(!e) return;
+  const streak=window._data?.streak||0;
+  e.innerHTML=`
+  <div class="card" style="border-color:var(--orange);background:var(--orange-light);margin-bottom:20px;text-align:center;">
+    <div style="font-size:14px;font-weight:700;color:var(--orange-dark);margin-bottom:6px;">Today's streak</div>
+    <div style="font-size:48px;font-weight:800;color:var(--orange-dark);">🔥 ${streak}</div>
+    <div style="font-size:13px;color:var(--orange-dark);">days in a row — keep it up!</div>
+  </div>
+
+  <div class="card" style="border-color:var(--sky);margin-bottom:20px;text-align:center;">
+    <div style="font-size:16px;font-weight:800;margin-bottom:8px;">⏱️ Session Timer</div>
+    <div style="font-size:56px;font-weight:800;color:var(--sky-dark);letter-spacing:2px;font-variant-numeric:tabular-nums;" id="timerDisplay">00:00</div>
+    <div style="font-size:13px;color:var(--muted);margin:8px 0;" id="timerStep">Press Start to begin your 30-minute session</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+      <button onclick="window.startTimer()" id="timerStartBtn" class="btn btn-sky" style="padding:12px 28px;">▶ Start Session</button>
+      <button onclick="window.resetTimer()" class="btn" style="padding:12px 28px;background:#F0F4FF;color:var(--muted);">↺ Reset</button>
+      <button onclick="window.markDayDone()" class="btn btn-green" style="padding:12px 28px;">✓ Mark Day Done (+50 ⭐)</button>
+    </div>
+  </div>
+
+  <div style="font-size:16px;font-weight:800;margin-bottom:14px;">📋 The 30-Minute Quranic Bridge Routine</div>
+  ${DAILY_ROUTINE.map((step,i)=>`
+  <div style="display:grid;grid-template-columns:48px 1fr;gap:14px;padding:16px;border-radius:14px;background:white;border:2px solid ${step.color}33;margin-bottom:10px;">
+    <div style="width:44px;height:44px;border-radius:50%;background:${step.color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;flex-shrink:0;">${step.mins}m</div>
+    <div><div style="font-weight:800;font-size:15px;color:var(--text);">${step.title}</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-top:4px;">${step.desc}</div></div>
+  </div>`).join("")}
+  <div class="card" style="border-color:var(--gold);background:var(--gold-light);margin-top:16px;text-align:center;">
+    <div style="font-size:14px;font-weight:700;color:var(--gold-dark);">🌙 Weekly Schedule (from Kimi's curriculum)</div>
+    <div style="font-size:13px;color:var(--gold-dark);margin-top:8px;line-height:1.8;">📅 5 days learning · 1 day review only · 1 day light listening<br>Best times: After Fajr (5–15 mins) · After Asr (main session) · Before sleep (audio)</div>
+  </div>`;
+
+  // Restart interval if timer was running
+  if(timerRunning) startTimerDisplay();
+}
+
+function startTimerDisplay(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    timerSeconds++;
+    const m = Math.floor(timerSeconds/60);
+    const s = timerSeconds%60;
+    const disp = el("timerDisplay");
+    if(disp) disp.textContent = String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+    // Update step indicator
+    let elapsed = 0;
+    for(let i=0;i<DAILY_ROUTINE.length;i++){
+      elapsed += DAILY_ROUTINE[i].mins*60;
+      if(timerSeconds<=elapsed){
+        const stepEl=el("timerStep");
+        if(stepEl) stepEl.textContent="Now: "+DAILY_ROUTINE[i].title+" ("+DAILY_ROUTINE[i].mins+" minutes)";
+        break;
+      }
+    }
+    if(timerSeconds>=30*60){
+      clearInterval(timerInterval);
+      timerRunning=false;
+      const disp2=el("timerDisplay");
+      if(disp2) disp2.style.color="var(--green)";
+      const stepEl2=el("timerStep");
+      if(stepEl2) stepEl2.textContent="✅ 30 minutes complete! Masha'Allah!";
+      showReward("⏱️","Session Complete!","30 minutes done! You are building something beautiful! 🌟",50);
+    }
+  },1000);
+}
+
+function startTimer(){
+  if(timerRunning){ 
+    // Pause
+    clearInterval(timerInterval);
+    timerRunning=false;
+    const btn=el("timerStartBtn");
+    if(btn) btn.textContent="▶ Resume";
+  } else {
+    timerRunning=true;
+    const btn=el("timerStartBtn");
+    if(btn) btn.textContent="⏸ Pause";
+    startTimerDisplay();
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning=false; timerSeconds=0; timerStep=0;
+  const disp=el("timerDisplay"); if(disp){disp.textContent="00:00";disp.style.color="var(--sky-dark)";}
+  const stepEl=el("timerStep"); if(stepEl) stepEl.textContent="Press Start to begin your 30-minute session";
+  const btn=el("timerStartBtn"); if(btn) btn.textContent="▶ Start Session";
+}
+
+async function markDayDone(){
+  if(!window._data) return;
+  const today2=today();
+  if(window._data.lastStudyDay===today2){ alert("Already marked today! Come back tomorrow. 🌙"); return; }
+  const newStreak = window._data.lastStudyDay === getPrevDay() ? (window._data.streak||0)+1 : 1;
+  const ns=(window._data.stars||0)+50;
+  await saveProgress({streak:newStreak, stars:ns, lastStudyDay:today2});
+  window._data.streak=newStreak; window._data.stars=ns; window._data.lastStudyDay=today2;
+  showReward("🔥","Day "+newStreak+" Complete!","Your streak is now "+newStreak+" days! +50 ⭐",50);
+  buildDailyTimer();
+}
+
+function getPrevDay(){
+  const d=new Date(); d.setDate(d.getDate()-1);
+  return d.toISOString().split("T")[0];
+}
+
+
+// ── EXPOSE ALL GLOBALS (must be last) ──
+window.buildCharHTML=buildCharHTML;
+window.showWeekDetail=showWeekDetail;
+window.initVocab=initVocab;
+window.doLogin=doLogin;
+window.doLogout=doLogout;
+window.switchTab=switchTab;
+window.closeReward=closeReward;
+window.restartAlpha=restartAlpha;
+window.filterSurahs=filterSurahs;
+window.loadSurahNum=loadSurahNum;
+window.toggleOpt=toggleOpt;
+window.hlVerse=hlVerse;
+window.playReader=playReader;
+window.expandTajweed=expandTajweed;
+window.buildLetterPicker=buildLetterPicker;
+window.selectLetter=selectLetter;
+window.clearCanvas=clearCanvas;
+window.markWritten=markWritten;
+window.doAssign=doAssign;
+window.advanceWeek=advanceWeek;
+window.saveNote=saveNote;
+
+window.dismissChar=dismissChar;
+window.showCharFact=showCharFact;
+window.cycleHifz=cycleHifz;
+window.buildMemTracker=buildMemTracker;
+window.buildDailyTimer=buildDailyTimer;
+window.startTimer=startTimer;
+window.resetTimer=resetTimer;
+window.markDayDone=markDayDone;
+</script>
+</body>
+</html>
+
+  <!-- 7: MEMORISATION TRACKER -->
+  <div class="cpanel" id="cpanel7" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:float 3s infinite;">📿</div>
+      <div><div style="font-size:22px;font-weight:800;">Quran Memorisation</div>
+      <div style="font-size:14px;color:var(--muted);">Track your Hifz journey — one Surah at a time</div></div>
+    </div>
+    <div id="memTracker"></div>
+  </div>
+
+  <!-- 8: DAILY TIMER -->
+  <div class="cpanel" id="cpanel8" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:wiggle 2s infinite;">⏱️</div>
+      <div><div style="font-size:22px;font-weight:800;">Daily Study Session</div>
+      <div style="font-size:14px;color:var(--muted);">Follow the 30-minute Quranic Bridge daily routine</div></div>
+    </div>
+    <div id="dailyTimer"></div>
+  </div>
