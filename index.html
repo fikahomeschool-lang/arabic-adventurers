@@ -191,6 +191,7 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
 <div class="char-popup" id="charPopup">
   <div class="char-bubble" id="charBubble">
     <button class="char-dismiss" onclick="window.dismissChar()">✕</button>
+    <button onclick="TTS.speakEnglish(document.getElementById('charText').textContent)" style="position:absolute;top:8px;left:12px;background:none;border:none;font-size:18px;cursor:pointer;padding:0;" title="Listen">🔊</button>
     <div id="charText" style="font-size:14px;font-weight:700;color:var(--text);line-height:1.6;"></div>
   </div>
   <div id="charFigure"></div>
@@ -404,6 +405,61 @@ let isDrawing=false,lastX=0,lastY=0;
 let charFactIdx=0,charTimer=null;
 let currentWeek=1;
 
+
+// ── TEXT-TO-SPEECH SYSTEM ──
+const TTS = {
+  speaking: false,
+  arabicVoice: null,
+  englishVoice: null,
+
+  init(){
+    if(!window.speechSynthesis) return;
+    const load = ()=>{
+      const voices = window.speechSynthesis.getVoices();
+      this.arabicVoice = voices.find(v=>v.lang.startsWith('ar')) || null;
+      this.englishVoice = voices.find(v=>v.lang.startsWith('en') && v.localService) || voices.find(v=>v.lang.startsWith('en')) || null;
+    };
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
+  },
+
+  speakEnglish(text){
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'en-US';
+    utt.rate = 0.92;
+    utt.pitch = 1.0;
+    if(this.englishVoice) utt.voice = this.englishVoice;
+    window.speechSynthesis.speak(utt);
+  },
+
+  speakArabic(text, rate=0.75){
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'ar-SA';
+    utt.rate = rate;
+    utt.pitch = 1.0;
+    if(this.arabicVoice) utt.voice = this.arabicVoice;
+    window.speechSynthesis.speak(utt);
+  },
+
+  stop(){ if(window.speechSynthesis) window.speechSynthesis.cancel(); }
+};
+TTS.init();
+
+function speakArabic(text){ TTS.speakArabic(text); }
+
+function speakCharGreeting(char){
+  const greetings = {
+    omar: "Marhaba! I am Omar! Let us learn Arabic together!",
+    hana: "Ahlan! I am Hana! Arabic is beautiful, just like you!",
+    zaky: "As-salamu alaykum! I am Zaky! Ready to explore the Quran?"
+  };
+  TTS.speakEnglish(greetings[char] || "Hello, friend!");
+}
+
 // ── UTILS ──
 function shuffle(a){return[...a].sort(()=>Math.random()-0.5);}
 function today(){return new Date().toISOString().split("T")[0];}
@@ -511,186 +567,338 @@ function switchTab(idx){
 // ── CHARACTER POPUP ──
 function buildCharHTML(charName, size=110){
   const delay = charName==="omar"?"0s":charName==="hana"?"0.4s":"0.8s";
-  const animStyle = `animation:charBounce 2.2s ease-in-out infinite;animation-delay:${delay};display:inline-block;`;
+  const animStyle = `animation:charBounce 2.2s ease-in-out infinite;animation-delay:${delay};display:inline-block;cursor:pointer;`;
+  const w = size, h = Math.round(size*1.55);
 
   if(charName==="omar"){
-    return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+    return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('omar')">
+      <defs>
+        <radialGradient id="omSkin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#E8A878"/><stop offset="100%" stop-color="#C06830"/></radialGradient>
+        <radialGradient id="omFace" cx="50%" cy="35%" r="60%"><stop offset="0%" stop-color="#EBB080"/><stop offset="100%" stop-color="#C87840"/></radialGradient>
+        <linearGradient id="omHoodie" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EF4444"/><stop offset="100%" stop-color="#991B1B"/></linearGradient>
+        <linearGradient id="omJeans" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#1E3A8A"/></linearGradient>
+        <radialGradient id="omEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#6B4F2A"/><stop offset="60%" stop-color="#2D1A00"/><stop offset="100%" stop-color="#1A0A00"/></radialGradient>
+        <linearGradient id="omHair" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#3D1A00"/><stop offset="100%" stop-color="#1A0800"/></linearGradient>
+        <radialGradient id="omCap" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#1E3A8A"/></radialGradient>
+      </defs>
       <!-- Shadow -->
-      <ellipse cx="55" cy="128" rx="22" ry="4" fill="rgba(0,0,0,0.12)"/>
-      <!-- Legs -->
-      <rect x="34" y="98" width="16" height="28" rx="8" fill="#1565C0"/>
-      <rect x="60" y="98" width="16" height="28" rx="8" fill="#1565C0"/>
+      <ellipse cx="60" cy="182" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
+      <!-- Legs / Jeans -->
+      <rect x="33" y="118" width="20" height="58" rx="10" fill="url(#omJeans)"/>
+      <rect x="57" y="118" width="20" height="58" rx="10" fill="url(#omJeans)"/>
+      <!-- Jean seam lines -->
+      <line x1="43" y1="118" x2="43" y2="170" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <line x1="67" y1="118" x2="67" y2="170" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
       <!-- Shoes -->
-      <ellipse cx="42" cy="126" rx="10" ry="5" fill="#1A237E"/>
-      <ellipse cx="68" cy="126" rx="10" ry="5" fill="#1A237E"/>
-      <!-- Body / Red hoodie -->
-      <rect x="22" y="54" width="66" height="52" rx="20" fill="#E53935"/>
+      <ellipse cx="43" cy="176" rx="14" ry="7" fill="#1A1A2E"/>
+      <ellipse cx="67" cy="176" rx="14" ry="7" fill="#1A1A2E"/>
+      <ellipse cx="43" cy="174" rx="10" ry="4" fill="#FFFFFF" opacity="0.12"/>
+      <!-- Body - Hoodie -->
+      <rect x="18" y="62" width="84" height="62" rx="22" fill="url(#omHoodie)"/>
+      <!-- Hoodie collar V -->
+      <polygon points="60,70 50,85 70,85" fill="#C62828"/>
+      <polygon points="60,70 50,85 60,88 70,85" fill="#991B1B"/>
       <!-- Hoodie pocket -->
-      <rect x="38" y="84" width="34" height="18" rx="9" fill="#C62828"/>
-      <!-- Left arm -->
-      <rect x="8" y="56" width="18" height="44" rx="9" fill="#E53935" transform="rotate(8,17,78)"/>
-      <!-- Right arm -->
-      <rect x="84" y="56" width="18" height="44" rx="9" fill="#E53935" transform="rotate(-8,93,78)"/>
+      <rect x="34" y="100" width="52" height="22" rx="11" fill="#C62828"/>
+      <line x1="60" y1="100" x2="60" y2="122" stroke="#991B1B" stroke-width="1.5"/>
+      <!-- Zipper line -->
+      <line x1="60" y1="70" x2="60" y2="100" stroke="#DC2626" stroke-width="2"/>
+      <!-- Arms -->
+      <rect x="4" y="65" width="20" height="50" rx="10" fill="url(#omHoodie)" transform="rotate(8 14 90)"/>
+      <rect x="96" y="65" width="20" height="50" rx="10" fill="url(#omHoodie)" transform="rotate(-8 106 90)"/>
+      <!-- Hoodie cuffs -->
+      <rect x="4" y="102" width="18" height="10" rx="5" fill="#C62828" transform="rotate(8 13 107)"/>
+      <rect x="98" y="102" width="18" height="10" rx="5" fill="#C62828" transform="rotate(-8 107 107)"/>
       <!-- Hands -->
-      <circle cx="14" cy="98" r="8" fill="#D4956A"/>
-      <circle cx="96" cy="98" r="8" fill="#D4956A"/>
+      <ellipse cx="10" cy="116" rx="9" ry="8" fill="url(#omSkin)"/>
+      <ellipse cx="110" cy="116" rx="9" ry="8" fill="url(#omSkin)"/>
+      <!-- Fingers hint -->
+      <line x1="5" y1="114" x2="8" y2="120" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="10" y1="113" x2="10" y2="121" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="15" y1="114" x2="13" y2="121" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
       <!-- Neck -->
-      <rect x="46" y="46" width="18" height="12" rx="6" fill="#D4956A"/>
+      <rect x="48" y="54" width="24" height="14" rx="7" fill="url(#omSkin)"/>
       <!-- Head -->
-      <circle cx="55" cy="34" r="28" fill="#D4956A"/>
-      <!-- Ears -->
-      <circle cx="27" cy="36" r="7" fill="#C4855A"/>
-      <circle cx="83" cy="36" r="7" fill="#C4855A"/>
-      <!-- Hair -->
-      <path d="M27 22 Q55 4 83 22 Q80 10 55 8 Q30 10 27 22Z" fill="#1A0A00"/>
-      <!-- Cap -->
-      <path d="M26 24 Q55 6 84 24 Q80 14 55 12 Q30 14 26 24Z" fill="#1565C0"/>
-      <rect x="20" y="22" width="70" height="8" rx="4" fill="#0D47A1"/>
+      <circle cx="60" cy="38" r="34" fill="url(#omFace)"/>
+      <!-- Ear detail -->
+      <circle cx="26" cy="40" r="9" fill="#C87840"/>
+      <circle cx="94" cy="40" r="9" fill="#C87840"/>
+      <circle cx="26" cy="40" r="5" fill="#B86830" opacity="0.5"/>
+      <circle cx="94" cy="40" r="5" fill="#B86830" opacity="0.5"/>
+      <!-- Hair back layer -->
+      <path d="M26 28 Q60 2 94 28 Q94 10 60 6 Q26 10 26 28Z" fill="#1A0800"/>
+      <!-- Cap base band -->
+      <rect x="22" y="22" width="76" height="11" rx="5" fill="url(#omCap)"/>
+      <!-- Cap dome -->
+      <path d="M26 26 Q60 4 94 26 Q88 8 60 6 Q32 8 26 26Z" fill="url(#omCap)"/>
+      <!-- Cap brim -->
+      <rect x="14" y="22" width="94" height="9" rx="4" fill="#1D4ED8"/>
+      <rect x="14" y="28" width="94" height="4" rx="2" fill="#1E3A8A" opacity="0.5"/>
       <!-- Cap button -->
-      <circle cx="55" cy="13" r="4" fill="#FFD700"/>
-      <!-- Eyes - white -->
-      <circle cx="44" cy="34" r="8" fill="white"/>
-      <circle cx="66" cy="34" r="8" fill="white"/>
-      <!-- Pupils -->
-      <circle cx="46" cy="35" r="5" fill="#1A0A00"/>
-      <circle cx="68" cy="35" r="5" fill="#1A0A00"/>
-      <!-- Eye shine -->
-      <circle cx="48" cy="33" r="2" fill="white"/>
-      <circle cx="70" cy="33" r="2" fill="white"/>
+      <circle cx="60" cy="7" r="5" fill="#FCD34D"/>
+      <circle cx="60" cy="7" r="3" fill="#F59E0B"/>
+      <!-- Hair side strands -->
+      <path d="M26 26 Q18 36 20 50" stroke="#1A0800" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M94 26 Q102 36 100 50" stroke="#1A0800" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <!-- Hair fringe under cap -->
+      <path d="M28 32 Q40 38 52 33" stroke="#1A0800" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M92 32 Q80 38 68 33" stroke="#1A0800" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <!-- Eyebrows -->
+      <path d="M38 26 Q46 22 54 24" stroke="#2D1A00" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M66 24 Q74 22 82 26" stroke="#2D1A00" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Eyes white -->
+      <ellipse cx="46" cy="36" rx="10" ry="9" fill="white"/>
+      <ellipse cx="74" cy="36" rx="10" ry="9" fill="white"/>
+      <!-- Eye shadow top -->
+      <ellipse cx="46" cy="30" rx="10" ry="4" fill="rgba(0,0,0,0.08)"/>
+      <ellipse cx="74" cy="30" rx="10" ry="4" fill="rgba(0,0,0,0.08)"/>
+      <!-- Iris -->
+      <circle cx="47" cy="37" r="7" fill="url(#omEye)"/>
+      <circle cx="75" cy="37" r="7" fill="url(#omEye)"/>
+      <!-- Inner iris ring -->
+      <circle cx="47" cy="37" r="4.5" fill="#1A0A00"/>
+      <circle cx="75" cy="37" r="4.5" fill="#1A0A00"/>
+      <!-- Eye shines (anime double highlight) -->
+      <circle cx="50" cy="34" r="2.5" fill="white"/>
+      <circle cx="78" cy="34" r="2.5" fill="white"/>
+      <circle cx="45" cy="39" r="1.2" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="73" cy="39" r="1.2" fill="rgba(255,255,255,0.6)"/>
+      <!-- Eyelid line top -->
+      <path d="M36 30 Q46 26 56 30" stroke="#1A0A00" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M64 30 Q74 26 84 30" stroke="#1A0A00" stroke-width="2" fill="none" stroke-linecap="round"/>
       <!-- Smile -->
-      <path d="M44 46 Q55 56 66 46" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M46 50 Q60 62 74 50" stroke="#A0522D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
       <!-- Rosy cheeks -->
-      <circle cx="35" cy="42" r="7" fill="#FFB3A0" opacity="0.5"/>
-      <circle cx="75" cy="42" r="7" fill="#FFB3A0" opacity="0.5"/>
-      <!-- Hoodie string -->
-      <circle cx="47" cy="68" r="3" fill="#FFCDD2"/>
-      <circle cx="63" cy="68" r="3" fill="#FFCDD2"/>
+      <circle cx="34" cy="44" r="8" fill="#FF8A65" opacity="0.35"/>
+      <circle cx="86" cy="44" r="8" fill="#FF8A65" opacity="0.35"/>
     </svg>`;
   }
 
   if(charName==="hana"){
-    return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+    return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('hana')">
+      <defs>
+        <radialGradient id="hnSkin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#EFC090"/><stop offset="100%" stop-color="#C87848"/></radialGradient>
+        <radialGradient id="hnFace" cx="50%" cy="35%" r="60%"><stop offset="0%" stop-color="#F0C89A"/><stop offset="100%" stop-color="#D08A55"/></radialGradient>
+        <linearGradient id="hnTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#065F46"/></linearGradient>
+        <linearGradient id="hnSkirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#047857"/></linearGradient>
+        <radialGradient id="hnEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#7C3AED"/><stop offset="50%" stop-color="#4C1D95"/><stop offset="100%" stop-color="#2E1065"/></radialGradient>
+        <linearGradient id="hnHair" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#5C2D0A"/><stop offset="100%" stop-color="#2D1200"/></linearGradient>
+        <radialGradient id="hnBow" cx="50%" cy="40%" r="65%"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#B45309"/></radialGradient>
+      </defs>
       <!-- Shadow -->
-      <ellipse cx="55" cy="128" rx="22" ry="4" fill="rgba(0,0,0,0.12)"/>
-      <!-- Skirt -->
-      <path d="M22 90 Q20 120 40 128 L70 128 Q90 120 88 90Z" fill="#4CAF50"/>
-      <!-- Skirt highlight -->
-      <path d="M30 90 Q28 115 44 124" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="60" cy="182" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
+      <!-- Skirt full -->
+      <path d="M18 105 Q14 150 34 170 L86 170 Q106 150 102 105Z" fill="url(#hnSkirt)"/>
+      <!-- Skirt sheen -->
+      <path d="M26 108 Q22 148 38 166" stroke="rgba(255,255,255,0.25)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M94 108 Q98 148 82 166" stroke="rgba(255,255,255,0.18)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Skirt hem ruffle -->
+      <path d="M34 170 Q40 178 46 170 Q52 178 58 170 Q64 178 70 170 Q76 178 82 170 Q88 178 86 170" stroke="#065F46" stroke-width="2" fill="none"/>
       <!-- Legs -->
-      <rect x="36" y="110" width="14" height="18" rx="7" fill="#D4956A"/>
-      <rect x="60" y="110" width="14" height="18" rx="7" fill="#D4956A"/>
+      <rect x="38" y="155" width="16" height="24" rx="8" fill="url(#hnSkin)"/>
+      <rect x="66" y="155" width="16" height="24" rx="8" fill="url(#hnSkin)"/>
       <!-- Shoes -->
-      <ellipse cx="43" cy="127" rx="9" ry="5" fill="#4CAF50"/>
-      <ellipse cx="67" cy="127" rx="9" ry="5" fill="#4CAF50"/>
-      <!-- Body - teal top -->
-      <rect x="24" y="54" width="62" height="44" rx="18" fill="#00897B"/>
-      <!-- Heart on top -->
-      <path d="M55 72 C55 72 48 66 46 70 C44 74 55 82 55 82 C55 82 66 74 64 70 C62 66 55 72 55 72Z" fill="#FFD700"/>
+      <ellipse cx="46" cy="178" rx="12" ry="6" fill="#10B981"/>
+      <ellipse cx="74" cy="178" rx="12" ry="6" fill="#10B981"/>
+      <ellipse cx="46" cy="176" rx="8" ry="3" fill="rgba(255,255,255,0.2)"/>
+      <!-- Body top -->
+      <rect x="22" y="64" width="76" height="48" rx="20" fill="url(#hnTop)"/>
+      <!-- Collar -->
+      <path d="M60 68 Q52 74 48 82 M60 68 Q68 74 72 82" stroke="white" stroke-width="2.5" fill="none" opacity="0.6"/>
+      <!-- Heart detail -->
+      <path d="M60 82 C60 82 53 76 51 80 C49 84 60 92 60 92 C60 92 71 84 69 80 C67 76 60 82 60 82Z" fill="#FCD34D" opacity="0.9"/>
       <!-- Left arm -->
-      <rect x="10" y="56" width="17" height="38" rx="8" fill="#00897B" transform="rotate(10,18,75)"/>
-      <!-- Right arm -->
-      <rect x="83" y="56" width="17" height="38" rx="8" fill="#00897B" transform="rotate(-10,92,75)"/>
+      <rect x="7" y="67" width="20" height="48" rx="10" fill="url(#hnTop)" transform="rotate(12 17 91)"/>
+      <rect x="97" y="67" width="20" height="48" rx="10" fill="url(#hnTop)" transform="rotate(-12 107 91)"/>
+      <!-- Cuffs -->
+      <rect x="8" y="102" width="17" height="9" rx="4" fill="#059669" transform="rotate(12 16 106)"/>
+      <rect x="95" y="102" width="17" height="9" rx="4" fill="#059669" transform="rotate(-12 104 106)"/>
       <!-- Hands -->
-      <circle cx="13" cy="93" r="7" fill="#D4956A"/>
-      <circle cx="97" cy="93" r="7" fill="#D4956A"/>
+      <ellipse cx="9" cy="116" rx="9" ry="8" fill="url(#hnSkin)"/>
+      <ellipse cx="111" cy="116" rx="9" ry="8" fill="url(#hnSkin)"/>
       <!-- Neck -->
-      <rect x="46" y="46" width="18" height="12" rx="6" fill="#D4956A"/>
+      <rect x="48" y="56" width="24" height="14" rx="7" fill="url(#hnSkin)"/>
       <!-- Head -->
-      <circle cx="55" cy="32" r="27" fill="#D4956A"/>
+      <circle cx="60" cy="38" r="33" fill="url(#hnFace)"/>
       <!-- Ears -->
-      <circle cx="28" cy="34" r="7" fill="#C4855A"/>
-      <circle cx="82" cy="34" r="7" fill="#C4855A"/>
-      <!-- Hair -->
-      <path d="M28 20 Q55 3 82 20 Q78 8 55 6 Q32 8 28 20Z" fill="#1A0A00"/>
-      <!-- Hair sides -->
-      <path d="M28 18 Q20 28 24 44" stroke="#1A0A00" stroke-width="8" fill="none" stroke-linecap="round"/>
-      <path d="M82 18 Q90 28 86 44" stroke="#1A0A00" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <circle cx="27" cy="40" r="9" fill="#D08A55"/>
+      <circle cx="93" cy="40" r="9" fill="#D08A55"/>
+      <circle cx="27" cy="40" r="5" fill="#C07845" opacity="0.5"/>
+      <!-- Hair back (very long) -->
+      <path d="M27 24 Q60 0 93 24 Q90 8 60 4 Q30 8 27 24Z" fill="url(#hnHair)"/>
+      <!-- Hair long back strands -->
+      <path d="M27 22 Q10 60 14 110 Q16 130 22 150" stroke="#2D1200" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <path d="M93 22 Q110 60 106 110 Q104 130 98 150" stroke="#2D1200" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <!-- Hair mid strands -->
+      <path d="M27 22 Q14 70 18 120" stroke="#3D1A00" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M93 22 Q106 70 102 120" stroke="#3D1A00" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- Hair shine lines -->
+      <path d="M30 20 Q38 10 50 14" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <path d="M90 20 Q82 10 70 14" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
       <!-- Bow left petal -->
-      <ellipse cx="38" cy="8" rx="12" ry="8" fill="#FFD700" transform="rotate(-25,38,8)"/>
+      <ellipse cx="36" cy="8" rx="16" ry="11" fill="url(#hnBow)" transform="rotate(-30 36 8)"/>
+      <ellipse cx="36" cy="8" rx="10" ry="6" fill="#FDE68A" opacity="0.5" transform="rotate(-30 36 8)"/>
       <!-- Bow right petal -->
-      <ellipse cx="72" cy="8" rx="12" ry="8" fill="#FFD700" transform="rotate(25,72,8)"/>
-      <!-- Bow center knot -->
-      <circle cx="55" cy="10" r="6" fill="#FFA000"/>
-      <!-- Eyes white -->
-      <circle cx="44" cy="32" r="8" fill="white"/>
-      <circle cx="66" cy="32" r="8" fill="white"/>
-      <!-- Pupils -->
-      <circle cx="46" cy="33" r="5" fill="#1A0A00"/>
-      <circle cx="68" cy="33" r="5" fill="#1A0A00"/>
-      <!-- Eye shine -->
-      <circle cx="48" cy="31" r="2" fill="white"/>
-      <circle cx="70" cy="31" r="2" fill="white"/>
-      <!-- Eyelashes -->
-      <line x1="39" y1="26" x2="37" y2="22" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="44" y1="24" x2="44" y2="20" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="49" y1="26" x2="51" y2="22" stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Smile -->
-      <path d="M44 44 Q55 54 66 44" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Cheeks -->
-      <circle cx="34" cy="40" r="7" fill="#FF8A80" opacity="0.55"/>
-      <circle cx="76" cy="40" r="7" fill="#FF8A80" opacity="0.55"/>
+      <ellipse cx="84" cy="8" rx="16" ry="11" fill="url(#hnBow)" transform="rotate(30 84 8)"/>
+      <ellipse cx="84" cy="8" rx="10" ry="6" fill="#FDE68A" opacity="0.5" transform="rotate(30 84 8)"/>
+      <!-- Bow center -->
+      <circle cx="60" cy="10" r="8" fill="#F59E0B"/>
+      <circle cx="60" cy="10" r="5" fill="#FBBF24"/>
+      <circle cx="60" cy="10" r="2" fill="#FDE68A"/>
+      <!-- Eyebrows (arched, feminine) -->
+      <path d="M36 26 Q46 20 56 24" stroke="#5C2D0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M64 24 Q74 20 84 26" stroke="#5C2D0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Eye whites (large anime eyes) -->
+      <ellipse cx="46" cy="37" rx="11" ry="12" fill="white"/>
+      <ellipse cx="74" cy="37" rx="11" ry="12" fill="white"/>
+      <!-- Eye top shadow -->
+      <ellipse cx="46" cy="29" rx="11" ry="5" fill="rgba(0,0,0,0.1)"/>
+      <ellipse cx="74" cy="29" rx="11" ry="5" fill="rgba(0,0,0,0.1)"/>
+      <!-- Iris (large) -->
+      <circle cx="46" cy="38" r="9" fill="url(#hnEye)"/>
+      <circle cx="74" cy="38" r="9" fill="url(#hnEye)"/>
+      <!-- Iris inner ring -->
+      <circle cx="46" cy="38" r="6" fill="#3B0764"/>
+      <circle cx="74" cy="38" r="6" fill="#3B0764"/>
+      <!-- Pupil -->
+      <circle cx="46" cy="38" r="3.5" fill="#0F0820"/>
+      <circle cx="74" cy="38" r="3.5" fill="#0F0820"/>
+      <!-- Big anime star highlights -->
+      <circle cx="50" cy="34" r="3" fill="white"/>
+      <circle cx="78" cy="34" r="3" fill="white"/>
+      <circle cx="44" cy="41" r="1.5" fill="rgba(255,255,255,0.7)"/>
+      <circle cx="72" cy="41" r="1.5" fill="rgba(255,255,255,0.7)"/>
+      <!-- Upper eyelid -->
+      <path d="M35 29 Q46 24 57 29" stroke="#2D1200" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M63 29 Q74 24 85 29" stroke="#2D1200" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Eyelashes (5 per eye) -->
+      <line x1="36" y1="29" x2="33" y2="24" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="40" y1="26" x2="38" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="46" y1="25" x2="46" y2="20" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="52" y1="26" x2="54" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="56" y1="29" x2="59" y2="25" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="64" y1="29" x2="61" y2="24" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="68" y1="26" x2="66" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="74" y1="25" x2="74" y2="20" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="80" y1="26" x2="82" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="84" y1="29" x2="87" y2="25" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Lower lash line -->
+      <path d="M35 45 Q46 50 57 45" stroke="#5C2D0A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <path d="M63 45 Q74 50 85 45" stroke="#5C2D0A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <!-- Cute smile -->
+      <path d="M46 52 Q60 64 74 52" stroke="#A0522D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Rosy cheeks (bigger) -->
+      <circle cx="32" cy="46" r="10" fill="#FF6B6B" opacity="0.3"/>
+      <circle cx="88" cy="46" r="10" fill="#FF6B6B" opacity="0.3"/>
+      <!-- Nose dot -->
+      <circle cx="60" cy="48" r="2" fill="#C07845" opacity="0.4"/>
     </svg>`;
   }
 
-  // ZAKY - purple bear
-  return `<svg width="${size}" height="${size*1.2}" viewBox="0 0 110 132" xmlns="http://www.w3.org/2000/svg" style="${animStyle}">
+  // ZAKY - Detailed anime bear
+  return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('zaky')">
+    <defs>
+      <radialGradient id="zkBody" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
+      <radialGradient id="zkHead" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#7C3AED"/></radialGradient>
+      <radialGradient id="zkBelly" cx="50%" cy="45%" r="60%"><stop offset="0%" stop-color="#EDE9FE"/><stop offset="100%" stop-color="#DDD6FE"/></radialGradient>
+      <radialGradient id="zkEar" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
+      <radialGradient id="zkEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#3B82F6"/><stop offset="50%" stop-color="#1D4ED8"/><stop offset="100%" stop-color="#1E3A8A"/></radialGradient>
+      <radialGradient id="zkCap" cx="50%" cy="30%" r="65%"><stop offset="0%" stop-color="#F87171"/><stop offset="100%" stop-color="#B91C1C"/></radialGradient>
+      <radialGradient id="zkMuzzle" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#E9D5FF"/><stop offset="100%" stop-color="#C4B5FD"/></radialGradient>
+    </defs>
     <!-- Shadow -->
-    <ellipse cx="55" cy="128" rx="24" ry="5" fill="rgba(0,0,0,0.12)"/>
+    <ellipse cx="60" cy="182" rx="30" ry="5" fill="rgba(0,0,0,0.18)"/>
     <!-- Legs -->
-    <rect x="30" y="96" width="20" height="32" rx="10" fill="#7B1FA2"/>
-    <rect x="60" y="96" width="20" height="32" rx="10" fill="#7B1FA2"/>
-    <!-- Feet -->
-    <ellipse cx="40" cy="127" rx="13" ry="6" fill="#6A1B9A"/>
-    <ellipse cx="70" cy="127" rx="13" ry="6" fill="#6A1B9A"/>
+    <ellipse cx="40" cy="150" rx="14" ry="26" fill="#7C3AED"/>
+    <ellipse cx="80" cy="150" rx="14" ry="26" fill="#7C3AED"/>
+    <!-- Paw feet -->
+    <ellipse cx="40" cy="172" rx="17" ry="9" fill="#6D28D9"/>
+    <ellipse cx="80" cy="172" rx="17" ry="9" fill="#6D28D9"/>
+    <!-- Toe dots -->
+    <circle cx="34" cy="174" r="3" fill="#5B21B6"/><circle cx="40" cy="176" r="3" fill="#5B21B6"/><circle cx="46" cy="174" r="3" fill="#5B21B6"/>
+    <circle cx="74" cy="174" r="3" fill="#5B21B6"/><circle cx="80" cy="176" r="3" fill="#5B21B6"/><circle cx="86" cy="174" r="3" fill="#5B21B6"/>
     <!-- Body -->
-    <ellipse cx="55" cy="80" rx="36" ry="30" fill="#9C27B0"/>
+    <ellipse cx="60" cy="108" rx="42" ry="36" fill="url(#zkBody)"/>
+    <!-- Body sheen -->
+    <ellipse cx="44" cy="90" rx="12" ry="8" fill="rgba(255,255,255,0.15)" transform="rotate(-20 44 90)"/>
     <!-- Belly patch -->
-    <ellipse cx="55" cy="82" rx="22" ry="18" fill="#CE93D8"/>
-    <!-- Buttons -->
-    <circle cx="55" cy="72" r="4" fill="#FFD700"/>
-    <circle cx="55" cy="84" r="4" fill="#FFD700"/>
-    <circle cx="55" cy="96" r="4" fill="#FFD700"/>
+    <ellipse cx="60" cy="110" rx="28" ry="22" fill="url(#zkBelly)"/>
+    <!-- Golden buttons -->
+    <circle cx="60" cy="96" r="5" fill="#FCD34D"/><circle cx="60" cy="96" r="3" fill="#F59E0B"/>
+    <circle cx="60" cy="110" r="5" fill="#FCD34D"/><circle cx="60" cy="110" r="3" fill="#F59E0B"/>
+    <circle cx="60" cy="124" r="5" fill="#FCD34D"/><circle cx="60" cy="124" r="3" fill="#F59E0B"/>
     <!-- Arms -->
-    <ellipse cx="18" cy="76" rx="10" ry="20" fill="#9C27B0" transform="rotate(15,18,76)"/>
-    <ellipse cx="92" cy="76" rx="10" ry="20" fill="#9C27B0" transform="rotate(-15,92,76)"/>
-    <!-- Paws -->
-    <circle cx="12" cy="94" r="10" fill="#7B1FA2"/>
-    <circle cx="98" cy="94" r="10" fill="#7B1FA2"/>
+    <ellipse cx="16" cy="100" rx="13" ry="26" fill="#8B5CF6" transform="rotate(18 16 100)"/>
+    <ellipse cx="104" cy="100" rx="13" ry="26" fill="#8B5CF6" transform="rotate(-18 104 100)"/>
+    <!-- Paw hands -->
+    <circle cx="10" cy="122" r="13" fill="#7C3AED"/>
+    <circle cx="110" cy="122" r="13" fill="#7C3AED"/>
+    <!-- Paw finger dots -->
+    <circle cx="5" cy="118" r="3.5" fill="#6D28D9"/><circle cx="10" cy="115" r="3.5" fill="#6D28D9"/><circle cx="15" cy="118" r="3.5" fill="#6D28D9"/>
+    <circle cx="105" cy="118" r="3.5" fill="#6D28D9"/><circle cx="110" cy="115" r="3.5" fill="#6D28D9"/><circle cx="115" cy="118" r="3.5" fill="#6D28D9"/>
     <!-- Ear outer -->
-    <circle cx="26" cy="20" r="14" fill="#7B1FA2"/>
-    <circle cx="84" cy="20" r="14" fill="#7B1FA2"/>
+    <circle cx="26" cy="22" rx="17" ry="17" fill="url(#zkEar)"/>
+    <circle cx="94" cy="22" rx="17" ry="17" fill="url(#zkEar)"/>
     <!-- Ear inner -->
-    <circle cx="26" cy="20" r="9" fill="#CE93D8"/>
-    <circle cx="84" cy="20" r="9" fill="#CE93D8"/>
+    <circle cx="26" cy="22" r="11" fill="#DDD6FE"/>
+    <circle cx="94" cy="22" r="11" fill="#DDD6FE"/>
+    <circle cx="26" cy="22" r="6" fill="#C4B5FD"/>
+    <circle cx="94" cy="22" r="6" fill="#C4B5FD"/>
     <!-- Head -->
-    <circle cx="55" cy="40" r="34" fill="#9C27B0"/>
+    <circle cx="60" cy="54" r="40" fill="url(#zkHead)"/>
+    <!-- Head sheen -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-15 44 38)"/>
     <!-- Cap brim -->
-    <rect x="20" y="24" width="70" height="10" rx="5" fill="#C62828"/>
-    <!-- Cap top -->
-    <path d="M26 26 Q55 8 84 26 Q80 14 55 12 Q30 14 26 26Z" fill="#E53935"/>
+    <rect x="16" y="26" width="88" height="13" rx="6" fill="#DC2626"/>
+    <!-- Cap dome -->
+    <path d="M22 30 Q60 8 98 30 Q94 12 60 9 Q26 12 22 30Z" fill="url(#zkCap)"/>
+    <!-- Cap shine -->
+    <path d="M30 22 Q48 12 66 16" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
     <!-- Cap button -->
-    <circle cx="55" cy="13" r="5" fill="#FFD700"/>
+    <circle cx="60" cy="10" r="6" fill="#FCD34D"/>
+    <circle cx="60" cy="10" r="4" fill="#F59E0B"/>
     <!-- Muzzle -->
-    <ellipse cx="55" cy="50" rx="16" ry="13" fill="#CE93D8"/>
+    <ellipse cx="60" cy="62" rx="19" ry="16" fill="url(#zkMuzzle)"/>
+    <!-- Muzzle sheen -->
+    <ellipse cx="54" cy="57" rx="7" ry="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15 54 57)"/>
     <!-- Nose -->
-    <ellipse cx="55" cy="44" rx="7" ry="5" fill="#4A148C"/>
+    <ellipse cx="60" cy="54" rx="9" ry="7" fill="#4C1D95"/>
+    <!-- Nose shine -->
+    <ellipse cx="57" cy="52" rx="4" ry="2.5" fill="rgba(255,255,255,0.4)"/>
     <!-- Nostrils -->
-    <circle cx="52" cy="45" r="1.5" fill="#38006B"/>
-    <circle cx="58" cy="45" r="1.5" fill="#38006B"/>
-    <!-- Eyes white -->
-    <circle cx="42" cy="34" r="9" fill="white"/>
-    <circle cx="68" cy="34" r="9" fill="white"/>
-    <!-- Pupils -->
-    <circle cx="44" cy="35" r="6" fill="#1A0A00"/>
-    <circle cx="70" cy="35" r="6" fill="#1A0A00"/>
-    <!-- Eye shine -->
-    <circle cx="46" cy="33" r="2.5" fill="white"/>
-    <circle cx="72" cy="33" r="2.5" fill="white"/>
+    <circle cx="56" cy="56" r="2" fill="#3B0764"/>
+    <circle cx="64" cy="56" r="2" fill="#3B0764"/>
+    <!-- Eyebrows (expressive arched) -->
+    <path d="M36 33 Q46 26 56 30" stroke="#4C1D95" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M64 30 Q74 26 84 33" stroke="#4C1D95" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- Eye whites (large) -->
+    <ellipse cx="46" cy="44" rx="11" ry="12" fill="white"/>
+    <ellipse cx="74" cy="44" rx="11" ry="12" fill="white"/>
+    <!-- Iris (blue - playful) -->
+    <circle cx="46" cy="45" r="8.5" fill="url(#zkEye)"/>
+    <circle cx="74" cy="45" r="8.5" fill="url(#zkEye)"/>
+    <!-- Iris inner ring -->
+    <circle cx="46" cy="45" r="5.5" fill="#1E3A8A"/>
+    <circle cx="74" cy="45" r="5.5" fill="#1E3A8A"/>
+    <!-- Pupil -->
+    <circle cx="46" cy="45" r="3" fill="#0F172A"/>
+    <circle cx="74" cy="45" r="3" fill="#0F172A"/>
+    <!-- Star highlight (anime) -->
+    <circle cx="50" cy="41" r="3" fill="white"/>
+    <circle cx="78" cy="41" r="3" fill="white"/>
+    <circle cx="44" cy="48" r="1.5" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="72" cy="48" r="1.5" fill="rgba(255,255,255,0.7)"/>
+    <!-- Upper eyelid -->
+    <path d="M35 36 Q46 30 57 36" stroke="#4C1D95" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M63 36 Q74 30 85 36" stroke="#4C1D95" stroke-width="2.5" fill="none" stroke-linecap="round"/>
     <!-- Happy mouth -->
-    <path d="M46 55 Q55 64 64 55" stroke="#4A148C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M46 68 Q60 80 74 68" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Mouth corners (dimples) -->
+    <circle cx="46" cy="68" r="2.5" fill="#6D28D9"/>
+    <circle cx="74" cy="68" r="2.5" fill="#6D28D9"/>
     <!-- Cheeks -->
-    <circle cx="34" cy="48" r="8" fill="#FF80AB" opacity="0.4"/>
-    <circle cx="76" cy="48" r="8" fill="#FF80AB" opacity="0.4"/>
+    <circle cx="30" cy="58" r="10" fill="#F472B6" opacity="0.35"/>
+    <circle cx="90" cy="58" r="10" fill="#F472B6" opacity="0.35"/>
   </svg>`;
 }
 
@@ -707,6 +915,7 @@ function showCharFact(){
   const txt=el("charText");
   if(!popup||!fig||!txt)return;
   txt.textContent=fact.text;
+  TTS.speakEnglish(fact.text);
   fig.innerHTML=buildCharHTML(fact.char,100);
   popup.classList.add("show");
   clearTimeout(charTimer);
@@ -895,7 +1104,29 @@ function buildChildUI(data,p){
       <div><div style="font-size:22px;font-weight:800;">Tajweed Rules</div><div style="font-size:14px;color:var(--muted);">The beautiful rules for reciting Quran correctly — tap each rule to learn it!</div></div>
     </div>
     <div id="tajweedList"></div>
-  </div>`;
+
+
+<!-- 7: MEMORISATION TRACKER -->
+  <div class="cpanel" id="cpanel7" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:float 3s infinite;">📿</div>
+      <div><div style="font-size:22px;font-weight:800;">Quran Memorisation</div>
+      <div style="font-size:14px;color:var(--muted);">Track your Hifz journey — one Surah at a time</div></div>
+    </div>
+    <div id="memTracker"></div>
+  </div>
+
+  <!-- 8: DAILY TIMER -->
+  <div class="cpanel" id="cpanel8" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="font-size:38px;animation:wiggle 2s infinite;">⏱️</div>
+      <div><div style="font-size:22px;font-weight:800;">Daily Study Session</div>
+      <div style="font-size:14px;color:var(--muted);">Follow the 30-minute Quranic Bridge daily routine</div></div>
+    </div>
+    <div id="dailyTimer"></div>
+  </div>
+
+  `;
 
   buildCurriculum();
   buildSurahGrid();
@@ -999,7 +1230,7 @@ function renderReader(s){
     html+=`<div class="verse-row" id="vrow${i}" onclick="window.hlVerse(${i})">
       <div class="vnum" id="vnum${i}">${i+1}</div>
       <div>
-        <div style="font-family:'Amiri',serif;font-size:28px;direction:rtl;text-align:right;line-height:2;margin-bottom:8px;">${v.a}</div>
+        <div style="font-family:'Amiri',serif;font-size:28px;direction:rtl;text-align:right;line-height:2;margin-bottom:8px;cursor:pointer;" onclick="event.stopPropagation();window.speakArabicVerse(${i});" title="Tap to hear this verse">${v.a} <span style='font-size:16px;opacity:0.5;'>🔊</span></div>
         ${showTr&&v.t?`<div style="font-size:13px;color:var(--sky-dark);font-style:italic;margin-bottom:5px;font-weight:600;">${v.t}</div>`:""}
         ${showEn?`<div style="font-size:14px;color:var(--muted);line-height:1.7;">${v.e}</div>`:""}
         ${showRt&&v.r?`<span class="badge" style="background:var(--green-light);color:var(--green-dark);border:1px solid var(--green);margin-top:6px;">Root: ${v.r}</span>`:""}
@@ -1102,11 +1333,13 @@ function renderAlpha(){
   }
   aAnswered=false;
   const curr=aQueue[aIdx];
+  setTimeout(()=>TTS.speakArabic(curr.l, 0.6), 300);
   const opts=shuffle(ALPHABET.filter(x=>x.n!==curr.n)).slice(0,3);
   const choices=shuffle([curr,...opts]);
   e.innerHTML=`<div style="display:flex;gap:6px;justify-content:center;margin-bottom:18px;">${aQueue.map((_,i)=>`<div style="width:26px;height:26px;border-radius:50%;border:3px solid ${i<aIdx?"var(--green)":i===aIdx?"var(--orange)":"var(--border)"};background:${i<aIdx?"var(--green)":i===aIdx?"var(--orange-light)":"white"};"></div>`).join("")}</div>
     <div id="alphaFb" style="min-height:34px;font-size:15px;font-weight:800;margin-bottom:8px;"></div>
-    <div style="font-family:'Amiri',serif;font-size:108px;color:var(--orange);line-height:1;margin:8px 0;animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;">${curr.l}</div>
+    <div style="font-family:'Amiri',serif;font-size:108px;color:var(--orange);line-height:1;margin:8px 0;animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;cursor:pointer;" onclick="window.speakArabic('${curr.l}')" title="Tap to hear">${curr.l}</div>
+    <button onclick="window.speakArabic('${curr.l}')" style="background:var(--sky-light);border:2px solid var(--sky);border-radius:20px;padding:6px 18px;font-size:14px;font-weight:700;color:var(--sky-dark);cursor:pointer;margin-bottom:10px;">🔊 Hear the letter</button>
     <div style="font-size:14px;color:var(--muted);font-style:italic;margin-bottom:20px;">${curr.m}</div>
     <div style="font-size:14px;color:var(--muted);font-weight:700;margin-bottom:14px;">Which letter is this?</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:360px;margin:0 auto;">
@@ -1142,9 +1375,11 @@ function renderVocab(){
   }
   vAnswered=false;
   const curr=vQueue[vIdx];
+  setTimeout(()=>TTS.speakArabic(curr.a, 0.65), 300);
   const shuffledOpts=shuffle([...curr.opts]);
   e.innerHTML=`<div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">Level ${curr.lvl||0}/4 · What does this mean?</div>
-    <div style="font-family:'Amiri',serif;font-size:68px;direction:rtl;color:var(--orange);margin:10px 0;line-height:1;">${curr.a}</div>
+    <div style="font-family:'Amiri',serif;font-size:68px;direction:rtl;color:var(--orange);margin:10px 0;line-height:1;cursor:pointer;" onclick="window.speakArabic('${curr.a}')" title="Tap to hear">${curr.a}</div>
+    <button onclick="window.speakArabic('${curr.a}')" style="background:var(--orange-light);border:2px solid var(--orange);border-radius:20px;padding:6px 18px;font-size:14px;font-weight:700;color:var(--orange-dark);cursor:pointer;margin-bottom:8px;">🔊 Hear the word</button>
     <div style="font-size:13px;color:var(--sky-dark);font-weight:700;font-style:italic;margin-bottom:16px;">Root: ${curr.r}</div>
     <div id="vqFb" style="min-height:30px;font-size:15px;font-weight:800;margin-bottom:10px;"></div>
     <div id="vqOptGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
@@ -1265,13 +1500,6 @@ function markWritten(){
 };
 
 // ── PARENT DASHBOARD ──
-async function loadParent(){
-  showPage("parent");
-  const snap=await getDocs(collection(db,"users"));
-  allChildData={};snap.forEach(d=>allChildData[d.id]=d.data());
-  buildParentUI();el("mobNav").style.display="none";
-}
-
 function buildParentUI(){
   el("parent-nav").innerHTML=`<nav><div class="nav-gem" style="background:linear-gradient(135deg,var(--orange),var(--purple));">🎓</div><div><div style="font-size:17px;font-weight:800;">Mama FH's Dashboard</div><span style="font-size:11px;color:var(--muted);display:block;">The Arabic Adventurers — parent view</span></div><div style="margin-left:auto;display:flex;gap:10px;align-items:center;"><div style="font-size:13px;color:var(--muted);">fikahomeschool@gmail.com</div><button onclick="window.doLogout()" class="btn" style="padding:7px 14px;background:#F0F4FF;color:var(--muted);font-size:13px;">Sign out</button></div></nav>`;
   const children=Object.entries(allChildData);
@@ -1580,6 +1808,11 @@ function getPrevDay(){
 }
 
 
+// ── SPEAK ARABIC VERSE ──
+function speakArabicVerse(idx){
+  if(currentVerses[idx]) TTS.speakArabic(currentVerses[idx].a, 0.7);
+}
+
 // ── EXPOSE ALL GLOBALS (must be last) ──
 window.buildCharHTML=buildCharHTML;
 window.showWeekDetail=showWeekDetail;
@@ -1606,29 +1839,14 @@ window.saveNote=saveNote;
 window.dismissChar=dismissChar;
 window.showCharFact=showCharFact;
 window.cycleHifz=cycleHifz;
+window.buildMemTracker=buildMemTracker;
+window.buildDailyTimer=buildDailyTimer;
 window.startTimer=startTimer;
 window.resetTimer=resetTimer;
 window.markDayDone=markDayDone;
+window.speakArabic=speakArabic;
+window.speakArabicVerse=speakArabicVerse;
+window.speakCharGreeting=speakCharGreeting;
 </script>
 </body>
 </html>
-
-  <!-- 7: MEMORISATION TRACKER -->
-  <div class="cpanel" id="cpanel7" style="display:none;">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <div style="font-size:38px;animation:float 3s infinite;">📿</div>
-      <div><div style="font-size:22px;font-weight:800;">Quran Memorisation</div>
-      <div style="font-size:14px;color:var(--muted);">Track your Hifz journey — one Surah at a time</div></div>
-    </div>
-    <div id="memTracker"></div>
-  </div>
-
-  <!-- 8: DAILY TIMER -->
-  <div class="cpanel" id="cpanel8" style="display:none;">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <div style="font-size:38px;animation:wiggle 2s infinite;">⏱️</div>
-      <div><div style="font-size:22px;font-weight:800;">Daily Study Session</div>
-      <div style="font-size:14px;color:var(--muted);">Follow the 30-minute Quranic Bridge daily routine</div></div>
-    </div>
-    <div id="dailyTimer"></div>
-  </div>
