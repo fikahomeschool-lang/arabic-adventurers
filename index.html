@@ -19,7 +19,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Baloo 2',cursive;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-  background:linear-gradient(180deg,#87CEEB 0%,#B0E2FF 40%,#E8F8FF 100%);}
+  background:linear-gradient(180deg,#C8E8FF 0%,#D8F0FF 30%,#FFF8EE 65%,#FFFCF5 100%);}
 #app{position:relative;z-index:1;}
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
@@ -30,7 +30,7 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
   position:sticky;top:0;z-index:200;}
 .nav-gem{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
 .nav-tabs{display:flex;gap:4px;margin-left:auto;}
-.nav-tab{padding:8px 13px;border-radius:10px;border:none;font-family:'Baloo 2',cursive;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);}
+.nav-tab{padding:8px 13px;border-radius:10px;border:none;font-family:'Baloo 2',cursive;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);}
 .nav-tab:hover{background:#F0F4FF;}
 .nav-tab.active{color:white;}
 .pill{display:flex;align-items:center;gap:6px;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:800;}
@@ -125,10 +125,29 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
 
 /* ── MOBILE ── */
 .mob-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:white;border-top:3px solid var(--border);display:none;box-shadow:0 -4px 16px rgba(0,0,0,0.08);}
-.mob-tab{flex:1;padding:10px 4px;text-align:center;border:none;background:transparent;cursor:pointer;font-family:'Baloo 2',cursive;font-size:10px;font-weight:700;color:var(--muted);}
+.mob-tab{flex:1;padding:12px 4px;text-align:center;border:none;background:transparent;cursor:pointer;font-family:'Baloo 2',cursive;font-size:11px;font-weight:800;color:var(--muted);}
 .mob-tab.active{color:var(--orange);}
-.mob-icon{font-size:20px;display:block;margin-bottom:2px;}
+.mob-icon{font-size:24px;display:block;margin-bottom:3px;}
 @media(max-width:700px){nav .nav-tabs{display:none;}.mob-nav{display:flex;}.page{padding-bottom:75px;}}
+
+/* ── ACCESSIBILITY ── */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
+}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:4px;}
+button,a,[role="button"]{min-height:44px;min-width:44px;}
+.char-bubble[aria-live]{pointer-events:auto;}
+
+/* ── MOUTH TALKING ANIMATION ── */
+@keyframes talkMouth{0%{d:path("M38 48 Q50 60 62 48");}50%{d:path("M38 52 Q50 56 62 52");}100%{d:path("M38 48 Q50 60 62 48");}}
+@keyframes talkMouthH{0%{d:path("M38 46 Q50 57 62 46");}50%{d:path("M38 50 Q50 53 62 50");}100%{d:path("M38 46 Q50 57 62 46");}}
+.mouth-talk{animation:talkMouth 0.22s ease-in-out infinite;}
+.mouth-talk-h{animation:talkMouthH 0.22s ease-in-out infinite;}
+
+/* ── VOICE TOGGLE ── */
+#voiceToggle{padding:6px 12px;border-radius:12px;border:2px solid var(--border);background:white;font-size:18px;cursor:pointer;transition:all 0.2s;min-height:40px;}
+#voiceToggle.muted{background:var(--rose-light);border-color:var(--rose);}
+#voiceToggle:hover{transform:scale(1.08);}
 </style>
 </head>
 <body>
@@ -157,7 +176,7 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
       <input id="loginPass" type="password" placeholder="••••••••" class="inp" onkeydown="if(event?.key==='Enter'||window.event?.key==='Enter')window.doLogin()"/>
     </div>
     <div id="loginErr" style="color:var(--rose-dark);font-size:14px;font-weight:700;margin-bottom:12px;min-height:20px;text-align:center;"></div>
-    <button id="loginBtn" onclick="window.doLogin()" class="btn btn-primary" style="width:100%;font-size:18px;padding:16px;">Let's Go! 🚀</button>
+    <button id="loginBtn" onclick="window.doLogin()" class="btn btn-primary" style="width:100%;font-size:18px;padding:16px;" aria-label="Sign in to Arabic Adventurers">Let's Go! 🚀</button>
   </div>
   <div style="margin-top:20px;">
     <div style="text-align:center;font-size:13px;color:var(--muted);font-weight:700;margin-bottom:12px;">Choose your adventurer:</div>
@@ -189,7 +208,7 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
 
 <!-- ══ CHARACTER POPUP ═══════════════════════════════════════════════ -->
 <div class="char-popup" id="charPopup">
-  <div class="char-bubble" id="charBubble">
+  <div class="char-bubble" id="charBubble" role="status" aria-live="polite" aria-atomic="true">
     <button class="char-dismiss" onclick="window.dismissChar()">✕</button>
     <button onclick="TTS.speakEnglish(document.getElementById('charText').textContent)" style="position:absolute;top:8px;left:12px;background:none;border:none;font-size:18px;cursor:pointer;padding:0;" title="Listen">🔊</button>
     <div id="charText" style="font-size:14px;font-weight:700;color:var(--text);line-height:1.6;"></div>
@@ -404,48 +423,77 @@ let vQueue=[],vIdx=0,vCorrect=0,vWrong=0,vSessionStars=0,vAnswered=false;
 let isDrawing=false,lastX=0,lastY=0;
 let charFactIdx=0,charTimer=null;
 let currentWeek=1;
+let voiceEnabled=localStorage.getItem('voiceEnabled')!=='false';
+let charMsgTimer=null;
+
 
 
 // ── TEXT-TO-SPEECH SYSTEM ──
 const TTS = {
-  speaking: false,
-  arabicVoice: null,
   englishVoice: null,
+  arabicVoice: null,
 
   init(){
     if(!window.speechSynthesis) return;
     const load = ()=>{
       const voices = window.speechSynthesis.getVoices();
-      this.arabicVoice = voices.find(v=>v.lang.startsWith('ar')) || null;
-      this.englishVoice = voices.find(v=>v.lang.startsWith('en') && v.localService) || voices.find(v=>v.lang.startsWith('en')) || null;
+      if(!voices.length) return;
+      const enNames = ['Google UK English Female','Google US English','Samantha','Karen','Tessa','Moira','Fiona','Microsoft Zira'];
+      this.englishVoice = null;
+      for(const n of enNames){
+        const v = voices.find(v => v.name.includes(n));
+        if(v){ this.englishVoice = v; break; }
+      }
+      if(!this.englishVoice){
+        this.englishVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
+          || voices.find(v => v.lang === 'en-GB')
+          || voices.find(v => v.lang.startsWith('en'));
+      }
+      this.arabicVoice = voices.find(v => v.name.includes('Google Arabic'))
+        || voices.find(v => v.name.includes('Hoda'))
+        || voices.find(v => v.lang.startsWith('ar'));
     };
     load();
     window.speechSynthesis.onvoiceschanged = load;
+    setTimeout(load, 1000);
+  },
+
+  _startMouth(lang){
+    const mouth=document.getElementById('charMouth');
+    if(mouth){ mouth.classList.add(lang==='ar'?'mouth-talk-h':'mouth-talk'); }
+  },
+  _stopMouth(){
+    const mouth=document.getElementById('charMouth');
+    if(mouth){ mouth.classList.remove('mouth-talk','mouth-talk-h'); }
   },
 
   speakEnglish(text){
-    if(!window.speechSynthesis) return;
+    if(!window.speechSynthesis || !text) return;
+    if(!voiceEnabled){ console.log('[TTS silenced]',text.substring(0,40)); return; }
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'en-US';
-    utt.rate = 0.92;
-    utt.pitch = 1.0;
+    utt.lang = 'en-GB'; utt.rate = 0.88; utt.pitch = 1.2; utt.volume = 1.0;
     if(this.englishVoice) utt.voice = this.englishVoice;
+    utt.onstart = ()=>this._startMouth('en');
+    utt.onend = ()=>this._stopMouth();
+    utt.onerror = ()=>this._stopMouth();
     window.speechSynthesis.speak(utt);
   },
 
   speakArabic(text, rate=0.75){
-    if(!window.speechSynthesis) return;
+    if(!window.speechSynthesis || !text) return;
+    if(!voiceEnabled){ console.log('[TTS silenced Arabic]'); return; }
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'ar-SA';
-    utt.rate = rate;
-    utt.pitch = 1.0;
+    utt.lang = 'ar-SA'; utt.rate = rate; utt.pitch = 1.05; utt.volume = 1.0;
     if(this.arabicVoice) utt.voice = this.arabicVoice;
+    utt.onstart = ()=>this._startMouth('ar');
+    utt.onend = ()=>this._stopMouth();
+    utt.onerror = ()=>this._stopMouth();
     window.speechSynthesis.speak(utt);
   },
 
-  stop(){ if(window.speechSynthesis) window.speechSynthesis.cancel(); }
+  stop(){ if(window.speechSynthesis) window.speechSynthesis.cancel(); this._stopMouth(); }
 };
 TTS.init();
 
@@ -453,12 +501,13 @@ function speakArabic(text){ TTS.speakArabic(text); }
 
 function speakCharGreeting(char){
   const greetings = {
-    omar: "Marhaba! I am Omar! Let us learn Arabic together!",
-    hana: "Ahlan! I am Hana! Arabic is beautiful, just like you!",
-    zaky: "As-salamu alaykum! I am Zaky! Ready to explore the Quran?"
+    omar:  "As-salamu alaykum! I am Omar! Let's explore Arabic together!",
+    hana:  "Ahlan ahlan! I am Hana! Learning Quran is so much fun!",
+    zaky:  "Hello hello! I am Zaky! Ready to learn something amazing today?"
   };
   TTS.speakEnglish(greetings[char] || "Hello, friend!");
 }
+
 
 // ── UTILS ──
 function shuffle(a){return[...a].sort(()=>Math.random()-0.5);}
@@ -524,7 +573,21 @@ async function loadChild(user){
   showPage("child");
   buildChildUI(window._data,p);
   el("mobNav").style.display="flex";
+  // Welcome message on login
+  setTimeout(()=>{
+    const welcomes={
+      meer:"Ahlan Meer! The Scholar has arrived! Ready to unlock some Arabic today? 🦁",
+      lilkos:"Yalla Lil Kos! Time to build bridges to the Quran! You've got this! 🐯",
+      sal:"Ahlan Sal! The Decoder is ready — let's crack some Arabic letters today! 🦊",
+      jazz:"Hey Jazz! Adventure time! Let's explore the Quran world together! 🐬",
+      fh:"Ahlan Ustadha! Welcome to your learning space. Barakallahu feeki! 🌙"
+    };
+    showCharMsg("zaky", welcomes[profileKey]||"Ahlan! Ready for today's Arabic adventure?");
+  }, 1500);
   scheduleCharPopup();
+  // Apply saved voice state to toggle button
+  const vt=document.getElementById('voiceToggle');
+  if(vt){ vt.textContent=voiceEnabled?'🔊':'🔇'; if(!voiceEnabled) vt.classList.add('muted'); }
 }
 
 async function loadParent(){
@@ -550,6 +613,18 @@ function showPage(name){
   });
 }
 
+const TAB_TIPS=[
+  null, // 0 Home — no tip needed
+  {char:"omar", text:"The 16-week plan is your map to becoming a Quran reader! Let's check your progress this week!"},
+  {char:"hana", text:"Time for Alphabet Quest! Every letter you learn brings you one step closer to reading Quran yourself!"},
+  {char:"zaky", text:"Surah time! Tap any verse to hear Sheikh Alafasy recite it. Try to follow along — you can do it!"},
+  {char:"omar", text:"Word Wizard! The more Quranic root words you know, the more of the Quran you can understand on your own!"},
+  {char:"hana", text:"Let's practise writing Arabic! Take your time — beautiful Arabic handwriting is a skill worth having!"},
+  {char:"zaky", text:"Tajweed rules make your Quran recitation sound beautiful. Even a tiny rule makes a big difference!"},
+  {char:"hana", text:"Hifz time — memorising the Quran is one of the greatest gifts you can give yourself!"},
+  {char:"zaky", text:"Daily study time! Just ten minutes every day adds up to something incredible. Start your timer!"},
+];
+
 function switchTab(idx){
   document.querySelectorAll(".ctab").forEach((t,i)=>{
     t.classList.toggle("active",i===idx);
@@ -562,343 +637,181 @@ function switchTab(idx){
   if(idx===5)initWriting();
   if(idx===7)buildMemTracker();
   if(idx===8)buildDailyTimer();
+  // Show character tip for this tab (with small delay so page settles first)
+  if(idx>0&&TAB_TIPS[idx]){
+    clearTimeout(charMsgTimer);
+    charMsgTimer=setTimeout(()=>showCharMsg(TAB_TIPS[idx].char, TAB_TIPS[idx].text), 1200);
+  }
+}
+
+// Show a contextual character message (doesn't interfere with fact timer)
+function showCharMsg(charName, text){
+  const popup=el("charPopup"), fig=el("charFigure"), txt=el("charText");
+  if(!popup||!fig||!txt)return;
+  txt.textContent=text;
+  fig.innerHTML=buildCharHTML(charName,100);
+  TTS.speakEnglish(text);
+  popup.classList.add("show");
+  clearTimeout(charMsgTimer);
+  charMsgTimer=setTimeout(()=>{popup.classList.remove("show");},10000);
+}
+
+// Show praise after correct answer
+function praiseChar(){
+  const praises=[
+    {char:"zaky",text:"Masha'Allah! That's exactly right! You're getting so good at this!"},
+    {char:"hana",text:"Yes! Brilliant! See — you know more than you think you do!"},
+    {char:"omar",text:"Perfect! Knowledge is light — and you just got brighter!"},
+  ];
+  const p=praises[Math.floor(Math.random()*praises.length)];
+  showCharMsg(p.char, p.text);
+}
+
+// Show encouragement after wrong answer
+function encourageChar(attempt){
+  if(attempt<=1){
+    showCharMsg("hana","Hmm, not quite… but you're close! Try once more — I believe in you!");
+  } else {
+    showCharMsg("omar","That one's tricky! Let's look at the right answer together so we remember it next time.");
+  }
 }
 
 // ── CHARACTER POPUP ──
 function buildCharHTML(charName, size=110){
   const delay = charName==="omar"?"0s":charName==="hana"?"0.4s":"0.8s";
-  const animStyle = `animation:charBounce 2.2s ease-in-out infinite;animation-delay:${delay};display:inline-block;cursor:pointer;`;
-  const w = size, h = Math.round(size*1.55);
+  const bounce = `animation:charBounce 2.2s ease-in-out infinite;animation-delay:${delay};display:inline-block;cursor:pointer;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.18));`;
 
   if(charName==="omar"){
-    return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('omar')">
-      <defs>
-        <radialGradient id="omSkin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#E8A878"/><stop offset="100%" stop-color="#C06830"/></radialGradient>
-        <radialGradient id="omFace" cx="50%" cy="35%" r="60%"><stop offset="0%" stop-color="#EBB080"/><stop offset="100%" stop-color="#C87840"/></radialGradient>
-        <linearGradient id="omHoodie" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EF4444"/><stop offset="100%" stop-color="#991B1B"/></linearGradient>
-        <linearGradient id="omJeans" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#1E3A8A"/></linearGradient>
-        <radialGradient id="omEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#6B4F2A"/><stop offset="60%" stop-color="#2D1A00"/><stop offset="100%" stop-color="#1A0A00"/></radialGradient>
-        <linearGradient id="omHair" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#3D1A00"/><stop offset="100%" stop-color="#1A0800"/></linearGradient>
-        <radialGradient id="omCap" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#1E3A8A"/></radialGradient>
-      </defs>
-      <!-- Shadow -->
-      <ellipse cx="60" cy="182" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
-      <!-- Legs / Jeans -->
-      <rect x="33" y="118" width="20" height="58" rx="10" fill="url(#omJeans)"/>
-      <rect x="57" y="118" width="20" height="58" rx="10" fill="url(#omJeans)"/>
-      <!-- Jean seam lines -->
-      <line x1="43" y1="118" x2="43" y2="170" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-      <line x1="67" y1="118" x2="67" y2="170" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-      <!-- Shoes -->
-      <ellipse cx="43" cy="176" rx="14" ry="7" fill="#1A1A2E"/>
-      <ellipse cx="67" cy="176" rx="14" ry="7" fill="#1A1A2E"/>
-      <ellipse cx="43" cy="174" rx="10" ry="4" fill="#FFFFFF" opacity="0.12"/>
-      <!-- Body - Hoodie -->
-      <rect x="18" y="62" width="84" height="62" rx="22" fill="url(#omHoodie)"/>
-      <!-- Hoodie collar V -->
-      <polygon points="60,70 50,85 70,85" fill="#C62828"/>
-      <polygon points="60,70 50,85 60,88 70,85" fill="#991B1B"/>
-      <!-- Hoodie pocket -->
-      <rect x="34" y="100" width="52" height="22" rx="11" fill="#C62828"/>
-      <line x1="60" y1="100" x2="60" y2="122" stroke="#991B1B" stroke-width="1.5"/>
-      <!-- Zipper line -->
-      <line x1="60" y1="70" x2="60" y2="100" stroke="#DC2626" stroke-width="2"/>
-      <!-- Arms -->
-      <rect x="4" y="65" width="20" height="50" rx="10" fill="url(#omHoodie)" transform="rotate(8 14 90)"/>
-      <rect x="96" y="65" width="20" height="50" rx="10" fill="url(#omHoodie)" transform="rotate(-8 106 90)"/>
-      <!-- Hoodie cuffs -->
-      <rect x="4" y="102" width="18" height="10" rx="5" fill="#C62828" transform="rotate(8 13 107)"/>
-      <rect x="98" y="102" width="18" height="10" rx="5" fill="#C62828" transform="rotate(-8 107 107)"/>
-      <!-- Hands -->
-      <ellipse cx="10" cy="116" rx="9" ry="8" fill="url(#omSkin)"/>
-      <ellipse cx="110" cy="116" rx="9" ry="8" fill="url(#omSkin)"/>
-      <!-- Fingers hint -->
-      <line x1="5" y1="114" x2="8" y2="120" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="10" y1="113" x2="10" y2="121" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="15" y1="114" x2="13" y2="121" stroke="#B87040" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Neck -->
-      <rect x="48" y="54" width="24" height="14" rx="7" fill="url(#omSkin)"/>
-      <!-- Head -->
-      <circle cx="60" cy="38" r="34" fill="url(#omFace)"/>
-      <!-- Ear detail -->
-      <circle cx="26" cy="40" r="9" fill="#C87840"/>
-      <circle cx="94" cy="40" r="9" fill="#C87840"/>
-      <circle cx="26" cy="40" r="5" fill="#B86830" opacity="0.5"/>
-      <circle cx="94" cy="40" r="5" fill="#B86830" opacity="0.5"/>
-      <!-- Hair back layer -->
-      <path d="M26 28 Q60 2 94 28 Q94 10 60 6 Q26 10 26 28Z" fill="#1A0800"/>
-      <!-- Cap base band -->
-      <rect x="22" y="22" width="76" height="11" rx="5" fill="url(#omCap)"/>
-      <!-- Cap dome -->
-      <path d="M26 26 Q60 4 94 26 Q88 8 60 6 Q32 8 26 26Z" fill="url(#omCap)"/>
-      <!-- Cap brim -->
-      <rect x="14" y="22" width="94" height="9" rx="4" fill="#1D4ED8"/>
-      <rect x="14" y="28" width="94" height="4" rx="2" fill="#1E3A8A" opacity="0.5"/>
-      <!-- Cap button -->
-      <circle cx="60" cy="7" r="5" fill="#FCD34D"/>
-      <circle cx="60" cy="7" r="3" fill="#F59E0B"/>
-      <!-- Hair side strands -->
-      <path d="M26 26 Q18 36 20 50" stroke="#1A0800" stroke-width="9" fill="none" stroke-linecap="round"/>
-      <path d="M94 26 Q102 36 100 50" stroke="#1A0800" stroke-width="9" fill="none" stroke-linecap="round"/>
-      <!-- Hair fringe under cap -->
-      <path d="M28 32 Q40 38 52 33" stroke="#1A0800" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M92 32 Q80 38 68 33" stroke="#1A0800" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <!-- Eyebrows -->
-      <path d="M38 26 Q46 22 54 24" stroke="#2D1A00" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <path d="M66 24 Q74 22 82 26" stroke="#2D1A00" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- Eyes white -->
-      <ellipse cx="46" cy="36" rx="10" ry="9" fill="white"/>
-      <ellipse cx="74" cy="36" rx="10" ry="9" fill="white"/>
-      <!-- Eye shadow top -->
-      <ellipse cx="46" cy="30" rx="10" ry="4" fill="rgba(0,0,0,0.08)"/>
-      <ellipse cx="74" cy="30" rx="10" ry="4" fill="rgba(0,0,0,0.08)"/>
-      <!-- Iris -->
-      <circle cx="47" cy="37" r="7" fill="url(#omEye)"/>
-      <circle cx="75" cy="37" r="7" fill="url(#omEye)"/>
-      <!-- Inner iris ring -->
-      <circle cx="47" cy="37" r="4.5" fill="#1A0A00"/>
-      <circle cx="75" cy="37" r="4.5" fill="#1A0A00"/>
-      <!-- Eye shines (anime double highlight) -->
-      <circle cx="50" cy="34" r="2.5" fill="white"/>
-      <circle cx="78" cy="34" r="2.5" fill="white"/>
-      <circle cx="45" cy="39" r="1.2" fill="rgba(255,255,255,0.6)"/>
-      <circle cx="73" cy="39" r="1.2" fill="rgba(255,255,255,0.6)"/>
-      <!-- Eyelid line top -->
-      <path d="M36 30 Q46 26 56 30" stroke="#1A0A00" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M64 30 Q74 26 84 30" stroke="#1A0A00" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <!-- Smile -->
-      <path d="M46 50 Q60 62 74 50" stroke="#A0522D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Rosy cheeks -->
-      <circle cx="34" cy="44" r="8" fill="#FF8A65" opacity="0.35"/>
-      <circle cx="86" cy="44" r="8" fill="#FF8A65" opacity="0.35"/>
+    const s = size, h = Math.round(size*1.5);
+    return `<svg width="${s}" height="${h}" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" style="${bounce}" onclick="window.speakCharGreeting('omar')" title="Click Omar!">
+      <ellipse cx="50" cy="147" rx="22" ry="5" fill="rgba(0,0,0,0.15)"/>
+      <ellipse cx="35" cy="141" rx="13" ry="6" fill="#3D2B1F" stroke="black" stroke-width="2"/>
+      <ellipse cx="65" cy="141" rx="13" ry="6" fill="#3D2B1F" stroke="black" stroke-width="2"/>
+      <ellipse cx="33" cy="139" rx="7" ry="3" fill="rgba(255,255,255,0.2)"/>
+      <rect x="28" y="104" width="18" height="38" rx="9" fill="#3B6ED4" stroke="black" stroke-width="2.5"/>
+      <rect x="54" y="104" width="18" height="38" rx="9" fill="#3B6ED4" stroke="black" stroke-width="2.5"/>
+      <rect x="22" y="100" width="56" height="10" rx="5" fill="#2A52AA" stroke="black" stroke-width="2"/>
+      <rect x="18" y="64" width="64" height="44" rx="22" fill="#FF4B4B" stroke="black" stroke-width="2.5"/>
+      <line x1="50" y1="68" x2="50" y2="106" stroke="#CC2222" stroke-width="2"/>
+      <rect x="28" y="90" width="44" height="16" rx="8" fill="#CC2222" stroke="black" stroke-width="1.5"/>
+      <rect x="6" y="66" width="18" height="40" rx="9" fill="#FF4B4B" stroke="black" stroke-width="2.5" transform="rotate(6 15 86)"/>
+      <rect x="76" y="66" width="18" height="40" rx="9" fill="#FF4B4B" stroke="black" stroke-width="2.5" transform="rotate(-6 85 86)"/>
+      <circle cx="9" cy="106" r="9" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <circle cx="91" cy="106" r="9" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <rect x="42" y="57" width="16" height="12" rx="6" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <circle cx="50" cy="36" r="30" fill="#D4956A" stroke="black" stroke-width="3"/>
+      <path d="M22 28 Q50 6 78 28 Q76 14 50 12 Q24 14 22 28Z" fill="#1A0A00" stroke="black" stroke-width="1.5"/>
+      <ellipse cx="50" cy="14" rx="24" ry="14" fill="#FFFFFF" stroke="black" stroke-width="2.5"/>
+      <rect x="26" y="14" width="48" height="8" rx="4" fill="#F0F0F0" stroke="black" stroke-width="2"/>
+      <line x1="34" y1="8" x2="34" y2="22" stroke="#DDD" stroke-width="1"/>
+      <line x1="42" y1="6" x2="42" y2="22" stroke="#DDD" stroke-width="1"/>
+      <line x1="50" y1="5" x2="50" y2="22" stroke="#DDD" stroke-width="1"/>
+      <line x1="58" y1="6" x2="58" y2="22" stroke="#DDD" stroke-width="1"/>
+      <line x1="66" y1="8" x2="66" y2="22" stroke="#DDD" stroke-width="1"/>
+      <path d="M33 28 Q40 23 47 26" stroke="#1A0A00" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M53 26 Q60 23 67 28" stroke="#1A0A00" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="35" r="8" fill="white" stroke="black" stroke-width="2.5"/>
+      <circle cx="60" cy="35" r="8" fill="white" stroke="black" stroke-width="2.5"/>
+      <circle cx="41" cy="36" r="5" fill="#1A0A00"/>
+      <circle cx="61" cy="36" r="5" fill="#1A0A00"/>
+      <circle cx="43" cy="33" r="2" fill="white"/>
+      <circle cx="63" cy="33" r="2" fill="white"/>
+      <path id="charMouth" d="M38 48 Q50 60 62 48" stroke="#8B4513" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="44" r="8" fill="#FF8C69" opacity="0.5"/>
+      <circle cx="72" cy="44" r="8" fill="#FF8C69" opacity="0.5"/>
     </svg>`;
   }
 
   if(charName==="hana"){
-    return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('hana')">
-      <defs>
-        <radialGradient id="hnSkin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#EFC090"/><stop offset="100%" stop-color="#C87848"/></radialGradient>
-        <radialGradient id="hnFace" cx="50%" cy="35%" r="60%"><stop offset="0%" stop-color="#F0C89A"/><stop offset="100%" stop-color="#D08A55"/></radialGradient>
-        <linearGradient id="hnTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#065F46"/></linearGradient>
-        <linearGradient id="hnSkirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#047857"/></linearGradient>
-        <radialGradient id="hnEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#7C3AED"/><stop offset="50%" stop-color="#4C1D95"/><stop offset="100%" stop-color="#2E1065"/></radialGradient>
-        <linearGradient id="hnHair" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#5C2D0A"/><stop offset="100%" stop-color="#2D1200"/></linearGradient>
-        <radialGradient id="hnBow" cx="50%" cy="40%" r="65%"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#B45309"/></radialGradient>
-      </defs>
-      <!-- Shadow -->
-      <ellipse cx="60" cy="182" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
-      <!-- Skirt full -->
-      <path d="M18 105 Q14 150 34 170 L86 170 Q106 150 102 105Z" fill="url(#hnSkirt)"/>
-      <!-- Skirt sheen -->
-      <path d="M26 108 Q22 148 38 166" stroke="rgba(255,255,255,0.25)" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <path d="M94 108 Q98 148 82 166" stroke="rgba(255,255,255,0.18)" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- Skirt hem ruffle -->
-      <path d="M34 170 Q40 178 46 170 Q52 178 58 170 Q64 178 70 170 Q76 178 82 170 Q88 178 86 170" stroke="#065F46" stroke-width="2" fill="none"/>
-      <!-- Legs -->
-      <rect x="38" y="155" width="16" height="24" rx="8" fill="url(#hnSkin)"/>
-      <rect x="66" y="155" width="16" height="24" rx="8" fill="url(#hnSkin)"/>
-      <!-- Shoes -->
-      <ellipse cx="46" cy="178" rx="12" ry="6" fill="#10B981"/>
-      <ellipse cx="74" cy="178" rx="12" ry="6" fill="#10B981"/>
-      <ellipse cx="46" cy="176" rx="8" ry="3" fill="rgba(255,255,255,0.2)"/>
-      <!-- Body top -->
-      <rect x="22" y="64" width="76" height="48" rx="20" fill="url(#hnTop)"/>
-      <!-- Collar -->
-      <path d="M60 68 Q52 74 48 82 M60 68 Q68 74 72 82" stroke="white" stroke-width="2.5" fill="none" opacity="0.6"/>
-      <!-- Heart detail -->
-      <path d="M60 82 C60 82 53 76 51 80 C49 84 60 92 60 92 C60 92 71 84 69 80 C67 76 60 82 60 82Z" fill="#FCD34D" opacity="0.9"/>
-      <!-- Left arm -->
-      <rect x="7" y="67" width="20" height="48" rx="10" fill="url(#hnTop)" transform="rotate(12 17 91)"/>
-      <rect x="97" y="67" width="20" height="48" rx="10" fill="url(#hnTop)" transform="rotate(-12 107 91)"/>
-      <!-- Cuffs -->
-      <rect x="8" y="102" width="17" height="9" rx="4" fill="#059669" transform="rotate(12 16 106)"/>
-      <rect x="95" y="102" width="17" height="9" rx="4" fill="#059669" transform="rotate(-12 104 106)"/>
-      <!-- Hands -->
-      <ellipse cx="9" cy="116" rx="9" ry="8" fill="url(#hnSkin)"/>
-      <ellipse cx="111" cy="116" rx="9" ry="8" fill="url(#hnSkin)"/>
-      <!-- Neck -->
-      <rect x="48" y="56" width="24" height="14" rx="7" fill="url(#hnSkin)"/>
-      <!-- Head -->
-      <circle cx="60" cy="38" r="33" fill="url(#hnFace)"/>
-      <!-- Ears -->
-      <circle cx="27" cy="40" r="9" fill="#D08A55"/>
-      <circle cx="93" cy="40" r="9" fill="#D08A55"/>
-      <circle cx="27" cy="40" r="5" fill="#C07845" opacity="0.5"/>
-      <!-- Hair back (very long) -->
-      <path d="M27 24 Q60 0 93 24 Q90 8 60 4 Q30 8 27 24Z" fill="url(#hnHair)"/>
-      <!-- Hair long back strands -->
-      <path d="M27 22 Q10 60 14 110 Q16 130 22 150" stroke="#2D1200" stroke-width="14" fill="none" stroke-linecap="round"/>
-      <path d="M93 22 Q110 60 106 110 Q104 130 98 150" stroke="#2D1200" stroke-width="14" fill="none" stroke-linecap="round"/>
-      <!-- Hair mid strands -->
-      <path d="M27 22 Q14 70 18 120" stroke="#3D1A00" stroke-width="8" fill="none" stroke-linecap="round"/>
-      <path d="M93 22 Q106 70 102 120" stroke="#3D1A00" stroke-width="8" fill="none" stroke-linecap="round"/>
-      <!-- Hair shine lines -->
-      <path d="M30 20 Q38 10 50 14" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-      <path d="M90 20 Q82 10 70 14" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-      <!-- Bow left petal -->
-      <ellipse cx="36" cy="8" rx="16" ry="11" fill="url(#hnBow)" transform="rotate(-30 36 8)"/>
-      <ellipse cx="36" cy="8" rx="10" ry="6" fill="#FDE68A" opacity="0.5" transform="rotate(-30 36 8)"/>
-      <!-- Bow right petal -->
-      <ellipse cx="84" cy="8" rx="16" ry="11" fill="url(#hnBow)" transform="rotate(30 84 8)"/>
-      <ellipse cx="84" cy="8" rx="10" ry="6" fill="#FDE68A" opacity="0.5" transform="rotate(30 84 8)"/>
-      <!-- Bow center -->
-      <circle cx="60" cy="10" r="8" fill="#F59E0B"/>
-      <circle cx="60" cy="10" r="5" fill="#FBBF24"/>
-      <circle cx="60" cy="10" r="2" fill="#FDE68A"/>
-      <!-- Eyebrows (arched, feminine) -->
-      <path d="M36 26 Q46 20 56 24" stroke="#5C2D0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M64 24 Q74 20 84 26" stroke="#5C2D0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Eye whites (large anime eyes) -->
-      <ellipse cx="46" cy="37" rx="11" ry="12" fill="white"/>
-      <ellipse cx="74" cy="37" rx="11" ry="12" fill="white"/>
-      <!-- Eye top shadow -->
-      <ellipse cx="46" cy="29" rx="11" ry="5" fill="rgba(0,0,0,0.1)"/>
-      <ellipse cx="74" cy="29" rx="11" ry="5" fill="rgba(0,0,0,0.1)"/>
-      <!-- Iris (large) -->
-      <circle cx="46" cy="38" r="9" fill="url(#hnEye)"/>
-      <circle cx="74" cy="38" r="9" fill="url(#hnEye)"/>
-      <!-- Iris inner ring -->
-      <circle cx="46" cy="38" r="6" fill="#3B0764"/>
-      <circle cx="74" cy="38" r="6" fill="#3B0764"/>
-      <!-- Pupil -->
-      <circle cx="46" cy="38" r="3.5" fill="#0F0820"/>
-      <circle cx="74" cy="38" r="3.5" fill="#0F0820"/>
-      <!-- Big anime star highlights -->
-      <circle cx="50" cy="34" r="3" fill="white"/>
-      <circle cx="78" cy="34" r="3" fill="white"/>
-      <circle cx="44" cy="41" r="1.5" fill="rgba(255,255,255,0.7)"/>
-      <circle cx="72" cy="41" r="1.5" fill="rgba(255,255,255,0.7)"/>
-      <!-- Upper eyelid -->
-      <path d="M35 29 Q46 24 57 29" stroke="#2D1200" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M63 29 Q74 24 85 29" stroke="#2D1200" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Eyelashes (5 per eye) -->
-      <line x1="36" y1="29" x2="33" y2="24" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="40" y1="26" x2="38" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="46" y1="25" x2="46" y2="20" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="52" y1="26" x2="54" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="56" y1="29" x2="59" y2="25" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="64" y1="29" x2="61" y2="24" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="68" y1="26" x2="66" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="74" y1="25" x2="74" y2="20" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="80" y1="26" x2="82" y2="21" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="84" y1="29" x2="87" y2="25" stroke="#1A0800" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Lower lash line -->
-      <path d="M35 45 Q46 50 57 45" stroke="#5C2D0A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
-      <path d="M63 45 Q74 50 85 45" stroke="#5C2D0A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.6"/>
-      <!-- Cute smile -->
-      <path d="M46 52 Q60 64 74 52" stroke="#A0522D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Rosy cheeks (bigger) -->
-      <circle cx="32" cy="46" r="10" fill="#FF6B6B" opacity="0.3"/>
-      <circle cx="88" cy="46" r="10" fill="#FF6B6B" opacity="0.3"/>
-      <!-- Nose dot -->
-      <circle cx="60" cy="48" r="2" fill="#C07845" opacity="0.4"/>
+    const s = size, h = Math.round(size*1.5);
+    return `<svg width="${s}" height="${h}" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" style="${bounce}" onclick="window.speakCharGreeting('hana')" title="Click Hana!">
+      <ellipse cx="50" cy="147" rx="22" ry="5" fill="rgba(0,0,0,0.15)"/>
+      <ellipse cx="37" cy="141" rx="12" ry="6" fill="#16A34A" stroke="black" stroke-width="2"/>
+      <ellipse cx="63" cy="141" rx="12" ry="6" fill="#16A34A" stroke="black" stroke-width="2"/>
+      <path d="M16 96 Q10 136 30 144 L70 144 Q90 136 84 96Z" fill="#F472B6" stroke="black" stroke-width="2.5"/>
+      <circle cx="32" cy="112" r="3" fill="#EC4899" opacity="0.6"/>
+      <circle cx="50" cy="118" r="3" fill="#EC4899" opacity="0.6"/>
+      <circle cx="68" cy="112" r="3" fill="#EC4899" opacity="0.6"/>
+      <circle cx="40" cy="128" r="3" fill="#EC4899" opacity="0.6"/>
+      <circle cx="60" cy="128" r="3" fill="#EC4899" opacity="0.6"/>
+      <rect x="20" y="64" width="60" height="38" rx="20" fill="#F472B6" stroke="black" stroke-width="2.5"/>
+      <path d="M50 76 C50 76 44 69 41 73 C38 77 50 86 50 86 C50 86 62 77 59 73 C56 69 50 76 50 76Z" fill="#BE185D" stroke="black" stroke-width="1"/>
+      <rect x="7" y="66" width="17" height="36" rx="8" fill="#F472B6" stroke="black" stroke-width="2.5" transform="rotate(10 15 84)"/>
+      <rect x="76" y="66" width="17" height="36" rx="8" fill="#F472B6" stroke="black" stroke-width="2.5" transform="rotate(-10 85 84)"/>
+      <circle cx="8" cy="102" r="8" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <circle cx="92" cy="102" r="8" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <rect x="43" y="56" width="14" height="12" rx="6" fill="#D4956A" stroke="black" stroke-width="2"/>
+      <circle cx="50" cy="36" r="28" fill="#D4956A" stroke="black" stroke-width="3"/>
+      <path d="M22 36 Q18 70 28 80 Q38 86 50 86 Q62 86 72 80 Q82 70 78 36" fill="#5EAAD4" stroke="black" stroke-width="2.5"/>
+      <path d="M22 38 Q22 8 50 8 Q78 8 78 38 Q68 42 50 42 Q32 42 22 38Z" fill="#5EAAD4" stroke="black" stroke-width="2.5"/>
+      <circle cx="50" cy="36" r="22" fill="#D4956A" stroke="black" stroke-width="2.5"/>
+      <path d="M26 24 Q34 14 46 16" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M32 28 Q38 23 44 26" stroke="#1A0A00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M56 26 Q62 23 68 28" stroke="#1A0A00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="39" cy="35" rx="7" ry="8" fill="white" stroke="black" stroke-width="2.5"/>
+      <ellipse cx="61" cy="35" rx="7" ry="8" fill="white" stroke="black" stroke-width="2.5"/>
+      <circle cx="40" cy="36" r="5" fill="#1A0A00"/>
+      <circle cx="62" cy="36" r="5" fill="#1A0A00"/>
+      <circle cx="42" cy="33" r="2" fill="white"/>
+      <circle cx="64" cy="33" r="2" fill="white"/>
+      <line x1="32" y1="29" x2="30" y2="25" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="39" y1="27" x2="39" y2="23" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="46" y1="29" x2="48" y2="25" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="54" y1="29" x2="52" y2="25" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="61" y1="27" x2="61" y2="23" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="68" y1="29" x2="70" y2="25" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 46 Q50 57 62 46" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="42" r="7" fill="#FF8C69" opacity="0.5"/>
+      <circle cx="72" cy="42" r="7" fill="#FF8C69" opacity="0.5"/>
     </svg>`;
   }
 
-  // ZAKY - Detailed anime bear
-  return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('zaky')">
-    <defs>
-      <radialGradient id="zkBody" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
-      <radialGradient id="zkHead" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#7C3AED"/></radialGradient>
-      <radialGradient id="zkBelly" cx="50%" cy="45%" r="60%"><stop offset="0%" stop-color="#EDE9FE"/><stop offset="100%" stop-color="#DDD6FE"/></radialGradient>
-      <radialGradient id="zkEar" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
-      <radialGradient id="zkEye" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#3B82F6"/><stop offset="50%" stop-color="#1D4ED8"/><stop offset="100%" stop-color="#1E3A8A"/></radialGradient>
-      <radialGradient id="zkCap" cx="50%" cy="30%" r="65%"><stop offset="0%" stop-color="#F87171"/><stop offset="100%" stop-color="#B91C1C"/></radialGradient>
-      <radialGradient id="zkMuzzle" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#E9D5FF"/><stop offset="100%" stop-color="#C4B5FD"/></radialGradient>
-    </defs>
-    <!-- Shadow -->
-    <ellipse cx="60" cy="182" rx="30" ry="5" fill="rgba(0,0,0,0.18)"/>
-    <!-- Legs -->
-    <ellipse cx="40" cy="150" rx="14" ry="26" fill="#7C3AED"/>
-    <ellipse cx="80" cy="150" rx="14" ry="26" fill="#7C3AED"/>
-    <!-- Paw feet -->
-    <ellipse cx="40" cy="172" rx="17" ry="9" fill="#6D28D9"/>
-    <ellipse cx="80" cy="172" rx="17" ry="9" fill="#6D28D9"/>
-    <!-- Toe dots -->
-    <circle cx="34" cy="174" r="3" fill="#5B21B6"/><circle cx="40" cy="176" r="3" fill="#5B21B6"/><circle cx="46" cy="174" r="3" fill="#5B21B6"/>
-    <circle cx="74" cy="174" r="3" fill="#5B21B6"/><circle cx="80" cy="176" r="3" fill="#5B21B6"/><circle cx="86" cy="174" r="3" fill="#5B21B6"/>
-    <!-- Body -->
-    <ellipse cx="60" cy="108" rx="42" ry="36" fill="url(#zkBody)"/>
-    <!-- Body sheen -->
-    <ellipse cx="44" cy="90" rx="12" ry="8" fill="rgba(255,255,255,0.15)" transform="rotate(-20 44 90)"/>
-    <!-- Belly patch -->
-    <ellipse cx="60" cy="110" rx="28" ry="22" fill="url(#zkBelly)"/>
-    <!-- Golden buttons -->
-    <circle cx="60" cy="96" r="5" fill="#FCD34D"/><circle cx="60" cy="96" r="3" fill="#F59E0B"/>
-    <circle cx="60" cy="110" r="5" fill="#FCD34D"/><circle cx="60" cy="110" r="3" fill="#F59E0B"/>
-    <circle cx="60" cy="124" r="5" fill="#FCD34D"/><circle cx="60" cy="124" r="3" fill="#F59E0B"/>
-    <!-- Arms -->
-    <ellipse cx="16" cy="100" rx="13" ry="26" fill="#8B5CF6" transform="rotate(18 16 100)"/>
-    <ellipse cx="104" cy="100" rx="13" ry="26" fill="#8B5CF6" transform="rotate(-18 104 100)"/>
-    <!-- Paw hands -->
-    <circle cx="10" cy="122" r="13" fill="#7C3AED"/>
-    <circle cx="110" cy="122" r="13" fill="#7C3AED"/>
-    <!-- Paw finger dots -->
-    <circle cx="5" cy="118" r="3.5" fill="#6D28D9"/><circle cx="10" cy="115" r="3.5" fill="#6D28D9"/><circle cx="15" cy="118" r="3.5" fill="#6D28D9"/>
-    <circle cx="105" cy="118" r="3.5" fill="#6D28D9"/><circle cx="110" cy="115" r="3.5" fill="#6D28D9"/><circle cx="115" cy="118" r="3.5" fill="#6D28D9"/>
-    <!-- Ear outer -->
-    <circle cx="26" cy="22" rx="17" ry="17" fill="url(#zkEar)"/>
-    <circle cx="94" cy="22" rx="17" ry="17" fill="url(#zkEar)"/>
-    <!-- Ear inner -->
-    <circle cx="26" cy="22" r="11" fill="#DDD6FE"/>
-    <circle cx="94" cy="22" r="11" fill="#DDD6FE"/>
-    <circle cx="26" cy="22" r="6" fill="#C4B5FD"/>
-    <circle cx="94" cy="22" r="6" fill="#C4B5FD"/>
-    <!-- Head -->
-    <circle cx="60" cy="54" r="40" fill="url(#zkHead)"/>
-    <!-- Head sheen -->
-    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-15 44 38)"/>
-    <!-- Cap brim -->
-    <rect x="16" y="26" width="88" height="13" rx="6" fill="#DC2626"/>
-    <!-- Cap dome -->
-    <path d="M22 30 Q60 8 98 30 Q94 12 60 9 Q26 12 22 30Z" fill="url(#zkCap)"/>
-    <!-- Cap shine -->
-    <path d="M30 22 Q48 12 66 16" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <!-- Cap button -->
-    <circle cx="60" cy="10" r="6" fill="#FCD34D"/>
-    <circle cx="60" cy="10" r="4" fill="#F59E0B"/>
-    <!-- Muzzle -->
-    <ellipse cx="60" cy="62" rx="19" ry="16" fill="url(#zkMuzzle)"/>
-    <!-- Muzzle sheen -->
-    <ellipse cx="54" cy="57" rx="7" ry="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15 54 57)"/>
-    <!-- Nose -->
-    <ellipse cx="60" cy="54" rx="9" ry="7" fill="#4C1D95"/>
-    <!-- Nose shine -->
-    <ellipse cx="57" cy="52" rx="4" ry="2.5" fill="rgba(255,255,255,0.4)"/>
-    <!-- Nostrils -->
-    <circle cx="56" cy="56" r="2" fill="#3B0764"/>
-    <circle cx="64" cy="56" r="2" fill="#3B0764"/>
-    <!-- Eyebrows (expressive arched) -->
-    <path d="M36 33 Q46 26 56 30" stroke="#4C1D95" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <path d="M64 30 Q74 26 84 33" stroke="#4C1D95" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <!-- Eye whites (large) -->
-    <ellipse cx="46" cy="44" rx="11" ry="12" fill="white"/>
-    <ellipse cx="74" cy="44" rx="11" ry="12" fill="white"/>
-    <!-- Iris (blue - playful) -->
-    <circle cx="46" cy="45" r="8.5" fill="url(#zkEye)"/>
-    <circle cx="74" cy="45" r="8.5" fill="url(#zkEye)"/>
-    <!-- Iris inner ring -->
-    <circle cx="46" cy="45" r="5.5" fill="#1E3A8A"/>
-    <circle cx="74" cy="45" r="5.5" fill="#1E3A8A"/>
-    <!-- Pupil -->
-    <circle cx="46" cy="45" r="3" fill="#0F172A"/>
-    <circle cx="74" cy="45" r="3" fill="#0F172A"/>
-    <!-- Star highlight (anime) -->
-    <circle cx="50" cy="41" r="3" fill="white"/>
-    <circle cx="78" cy="41" r="3" fill="white"/>
-    <circle cx="44" cy="48" r="1.5" fill="rgba(255,255,255,0.7)"/>
-    <circle cx="72" cy="48" r="1.5" fill="rgba(255,255,255,0.7)"/>
-    <!-- Upper eyelid -->
-    <path d="M35 36 Q46 30 57 36" stroke="#4C1D95" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M63 36 Q74 30 85 36" stroke="#4C1D95" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <!-- Happy mouth -->
-    <path d="M46 68 Q60 80 74 68" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <!-- Mouth corners (dimples) -->
-    <circle cx="46" cy="68" r="2.5" fill="#6D28D9"/>
-    <circle cx="74" cy="68" r="2.5" fill="#6D28D9"/>
-    <!-- Cheeks -->
-    <circle cx="30" cy="58" r="10" fill="#F472B6" opacity="0.35"/>
-    <circle cx="90" cy="58" r="10" fill="#F472B6" opacity="0.35"/>
+  const s = size, h = Math.round(size*1.5);
+  return `<svg width="${s}" height="${h}" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" style="${bounce}" onclick="window.speakCharGreeting('zaky')" title="Click Zaky!">
+    <ellipse cx="50" cy="147" rx="24" ry="5" fill="rgba(0,0,0,0.15)"/>
+    <ellipse cx="35" cy="141" rx="14" ry="7" fill="#6D28D9" stroke="black" stroke-width="2"/>
+    <ellipse cx="65" cy="141" rx="14" ry="7" fill="#6D28D9" stroke="black" stroke-width="2"/>
+    <circle cx="27" cy="140" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <circle cx="35" cy="138" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <circle cx="43" cy="140" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <circle cx="57" cy="140" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <circle cx="65" cy="138" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <circle cx="73" cy="140" r="4" fill="#5B21B6" stroke="black" stroke-width="1.5"/>
+    <rect x="28" y="106" width="20" height="36" rx="10" fill="#8B5CF6" stroke="black" stroke-width="2.5"/>
+    <rect x="52" y="106" width="20" height="36" rx="10" fill="#8B5CF6" stroke="black" stroke-width="2.5"/>
+    <ellipse cx="50" cy="90" rx="36" ry="28" fill="#A855F7" stroke="black" stroke-width="3"/>
+    <ellipse cx="50" cy="92" rx="22" ry="18" fill="#DDD6FE" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="80" r="4" fill="#FCD34D" stroke="black" stroke-width="1.5"/>
+    <circle cx="50" cy="92" r="4" fill="#FCD34D" stroke="black" stroke-width="1.5"/>
+    <circle cx="50" cy="104" r="4" fill="#FCD34D" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="13" cy="86" rx="10" ry="22" fill="#8B5CF6" stroke="black" stroke-width="2.5" transform="rotate(15 13 86)"/>
+    <ellipse cx="87" cy="86" rx="10" ry="22" fill="#8B5CF6" stroke="black" stroke-width="2.5" transform="rotate(-15 87 86)"/>
+    <circle cx="8" cy="106" r="12" fill="#7C3AED" stroke="black" stroke-width="2.5"/>
+    <circle cx="92" cy="106" r="12" fill="#7C3AED" stroke="black" stroke-width="2.5"/>
+    <circle cx="4" cy="103" r="3" fill="#6D28D9"/><circle cx="8" cy="100" r="3" fill="#6D28D9"/><circle cx="12" cy="103" r="3" fill="#6D28D9"/>
+    <circle cx="88" cy="103" r="3" fill="#6D28D9"/><circle cx="92" cy="100" r="3" fill="#6D28D9"/><circle cx="96" cy="103" r="3" fill="#6D28D9"/>
+    <circle cx="24" cy="22" r="16" fill="#7C3AED" stroke="black" stroke-width="3"/>
+    <circle cx="76" cy="22" r="16" fill="#7C3AED" stroke="black" stroke-width="3"/>
+    <circle cx="24" cy="22" r="10" fill="#DDD6FE" stroke="black" stroke-width="1.5"/>
+    <circle cx="76" cy="22" r="10" fill="#DDD6FE" stroke="black" stroke-width="1.5"/>
+    <circle cx="50" cy="52" r="34" fill="#A855F7" stroke="black" stroke-width="3"/>
+    <rect x="18" y="28" width="64" height="10" rx="5" fill="#DC2626" stroke="black" stroke-width="2.5"/>
+    <path d="M24 32 Q50 10 76 32 Q72 14 50 12 Q28 14 24 32Z" fill="#EF4444" stroke="black" stroke-width="2.5"/>
+    <circle cx="50" cy="12" r="5" fill="#FCD34D" stroke="black" stroke-width="2"/>
+    <ellipse cx="50" cy="62" rx="16" ry="12" fill="#DDD6FE" stroke="black" stroke-width="2.5"/>
+    <ellipse cx="50" cy="54" rx="8" ry="6" fill="#4C1D95" stroke="black" stroke-width="2"/>
+    <ellipse cx="48" cy="52" rx="3" ry="2" fill="rgba(255,255,255,0.4)"/>
+    <path d="M32 38 Q40 32 48 36" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M52 36 Q60 32 68 38" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="40" cy="46" r="9" fill="white" stroke="black" stroke-width="2.5"/>
+    <circle cx="60" cy="46" r="9" fill="white" stroke="black" stroke-width="2.5"/>
+    <circle cx="41" cy="47" r="6" fill="#1A1A2E"/>
+    <circle cx="61" cy="47" r="6" fill="#1A1A2E"/>
+    <circle cx="43" cy="44" r="2.5" fill="white"/>
+    <circle cx="63" cy="44" r="2.5" fill="white"/>
+    <path d="M40 70 Q50 80 60 70" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="28" cy="62" r="9" fill="#F472B6" opacity="0.5"/>
+    <circle cx="72" cy="62" r="9" fill="#F472B6" opacity="0.5"/>
   </svg>`;
 }
 
@@ -953,6 +866,7 @@ function buildChildUI(data,p){
     <div style="display:flex;gap:10px;align-items:center;margin-left:12px;">
       <div class="pill" style="background:var(--gold-light);color:var(--gold-dark);border:2px solid var(--gold);">⭐ ${stars}</div>
       <div class="pill" style="background:#FFF0E8;color:var(--orange-dark);border:2px solid var(--orange);">🔥 ${streak}</div>
+      <button id="voiceToggle" onclick="window.toggleVoice()" title="Toggle voice on/off" aria-label="Toggle voice">${voiceEnabled?'🔊':'🔇'}</button>
       <button onclick="window.doLogout()" class="btn" style="padding:7px 14px;background:#F0F4FF;color:var(--muted);font-size:13px;">Sign out</button>
     </div>
   </nav>`;
@@ -1351,8 +1265,8 @@ function renderAlpha(){
       const chosen=decodeURIComponent(this.dataset.n);
       const correct=decodeURIComponent(this.dataset.correct);
       const fb=el("alphaFb");
-      if(chosen===correct){this.classList.add("correct");if(fb){fb.textContent="✓ Masha'Allah! Correct!";fb.style.color="var(--green-dark)";}aScore++;setTimeout(()=>{aIdx++;renderAlpha();},1000);}
-      else{this.classList.add("wrong");if(fb){fb.textContent=`✗ It's "${correct}" — remember the picture!`;fb.style.color="var(--rose-dark)";}document.querySelectorAll(".alpha-opt").forEach(b=>{if(decodeURIComponent(b.dataset.n)===correct)b.classList.add("correct");});setTimeout(()=>{aIdx++;renderAlpha();},2200);}
+      if(chosen===correct){this.classList.add("correct");if(fb){fb.textContent="✓ Masha'Allah! Correct!";fb.style.color="var(--green-dark)";}aScore++;praiseChar();setTimeout(()=>{aIdx++;renderAlpha();},1000);}
+      else{this.classList.add("wrong");if(fb){fb.textContent=`✗ It's "${correct}" — remember the picture!`;fb.style.color="var(--rose-dark)";}encourageChar(1);document.querySelectorAll(".alpha-opt").forEach(b=>{if(decodeURIComponent(b.dataset.n)===correct)b.classList.add("correct");});setTimeout(()=>{aIdx++;renderAlpha();},2200);}
     });
   });
 }
@@ -1395,7 +1309,7 @@ function renderVocab(){
       if(chosen===correct){
         this.classList.add("correct");
         if(fb){fb.textContent="Masha'Allah! That's right! ✓";fb.style.color="var(--green-dark)";}
-        vCorrect++;vSessionStars+=10;
+        vCorrect++;vSessionStars+=10;praiseChar();
         if(el("vqC"))el("vqC").textContent=vCorrect;
         if(el("vqS"))el("vqS").textContent=vSessionStars;
         curr.lvl=Math.min((curr.lvl||0)+1,4);
@@ -1410,6 +1324,7 @@ function renderVocab(){
       } else {
         this.classList.add("wrong");
         if(fb){fb.textContent=`Not quite — it's "${correct}"! 💪`;fb.style.color="var(--rose-dark)";}
+        encourageChar(vWrong+1);
         document.querySelectorAll(".vq-opt").forEach(b=>{if(decodeURIComponent(b.dataset.opt)===correct)b.classList.add("correct");});
         vWrong++;curr.lvl=Math.max((curr.lvl||0)-1,0);
         if(el("vqW"))el("vqW").textContent=vWrong;
@@ -1502,7 +1417,20 @@ function markWritten(){
 // ── PARENT DASHBOARD ──
 function buildParentUI(){
   el("parent-nav").innerHTML=`<nav><div class="nav-gem" style="background:linear-gradient(135deg,var(--orange),var(--purple));">🎓</div><div><div style="font-size:17px;font-weight:800;">Mama FH's Dashboard</div><span style="font-size:11px;color:var(--muted);display:block;">The Arabic Adventurers — parent view</span></div><div style="margin-left:auto;display:flex;gap:10px;align-items:center;"><div style="font-size:13px;color:var(--muted);">fikahomeschool@gmail.com</div><button onclick="window.doLogout()" class="btn" style="padding:7px 14px;background:#F0F4FF;color:var(--muted);font-size:13px;">Sign out</button></div></nav>`;
-  const children=Object.entries(allChildData);
+  // ── Ensure all 5 family accounts are always shown, even if not yet in Firestore ──
+  const FAMILY_DEFAULTS={
+    meer:{nickname:"meer",displayName:"Meer",age:13,emoji:"🦁",stars:0,streak:0,lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],currentWeek:1,lastActive:"—",weeklyNote:"",assignedWork:[]},
+    lilkos:{nickname:"lilkos",displayName:"Lil Kos",age:12,emoji:"🐯",stars:0,streak:0,lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],currentWeek:1,lastActive:"—",weeklyNote:"",assignedWork:[]},
+    sal:{nickname:"sal",displayName:"Sal",age:10,emoji:"🦊",stars:0,streak:0,lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],currentWeek:1,lastActive:"—",weeklyNote:"",assignedWork:[]},
+    jazz:{nickname:"jazz",displayName:"Jazz",age:8,emoji:"🐬",stars:0,streak:0,lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],currentWeek:1,lastActive:"—",weeklyNote:"",assignedWork:[]},
+    fh:{nickname:"fh",displayName:"FH (Ustadha)",age:0,emoji:"🌙",stars:0,streak:0,lettersLearned:[],lessonsComplete:[],surahsRead:[],vocabMastered:[],currentWeek:1,lastActive:"—",weeklyNote:"",assignedWork:[]}
+  };
+  // Merge live Firestore data over defaults — indexed by nickname
+  const byNickname={};
+  Object.values(allChildData).forEach(d=>{ if(d.nickname) byNickname[d.nickname]=d; });
+  // Build ordered list: always exactly these 5, in this order
+  const orderedKeys=["meer","lilkos","sal","jazz","fh"];
+  const children=orderedKeys.map(k=>[k, Object.assign({},FAMILY_DEFAULTS[k],byNickname[k]||{})]);
   const totalStars=children.reduce((s,[_,d])=>s+(d.stars||0),0);
   const avgStreak=children.length?Math.round(children.reduce((s,[_,d])=>s+(d.streak||0),0)/children.length):0;
   let html=`<div style="font-size:26px;font-weight:800;margin-bottom:6px;">🎓 Mama's Dashboard</div>
@@ -1813,6 +1741,16 @@ function speakArabicVerse(idx){
   if(currentVerses[idx]) TTS.speakArabic(currentVerses[idx].a, 0.7);
 }
 
+// ── VOICE TOGGLE ──
+function toggleVoice(){
+  voiceEnabled=!voiceEnabled;
+  localStorage.setItem('voiceEnabled', voiceEnabled?'true':'false');
+  TTS.stop();
+  const btn=document.getElementById('voiceToggle');
+  if(btn){ btn.textContent=voiceEnabled?'🔊':'🔇'; btn.classList.toggle('muted',!voiceEnabled); }
+}
+window.toggleVoice=toggleVoice;
+
 // ── EXPOSE ALL GLOBALS (must be last) ──
 window.buildCharHTML=buildCharHTML;
 window.showWeekDetail=showWeekDetail;
@@ -1847,6 +1785,9 @@ window.markDayDone=markDayDone;
 window.speakArabic=speakArabic;
 window.speakArabicVerse=speakArabicVerse;
 window.speakCharGreeting=speakCharGreeting;
+window.showCharMsg=showCharMsg;
+window.praiseChar=praiseChar;
+window.encourageChar=encourageChar;
 </script>
 </body>
 </html>
