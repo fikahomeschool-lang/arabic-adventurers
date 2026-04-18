@@ -17,6 +17,8 @@
   --bg:#F0F8FF;--card:#FFFFFF;--text:#1A2744;--muted:#6B7A99;--border:#E2EAF4;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:4px;}
+button,a,[role="button"]{min-height:44px;min-width:44px;}
 body{font-family:'Baloo 2',cursive;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
   background:linear-gradient(180deg,#87CEEB 0%,#B0E2FF 40%,#E8F8FF 100%);}
@@ -102,12 +104,15 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
 .reward-card{background:white;border-radius:28px;padding:48px 40px;text-align:center;max-width:400px;width:90%;animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;border:4px solid var(--gold);}
 
 /* ── CHARACTER POPUP ── */
-.char-popup{position:fixed;bottom:0;right:20px;z-index:500;display:none;flex-direction:column;align-items:flex-end;gap:0;}
+.char-popup{position:fixed;bottom:80px;right:20px;z-index:500;display:none;flex-direction:column;align-items:flex-end;gap:0;}
 .char-popup.show{display:flex;animation:slideUp 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;}
 .char-bubble{background:white;border-radius:20px 20px 4px 20px;padding:16px 20px;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.15);border:3px solid var(--orange);position:relative;margin-bottom:8px;}
 .char-bubble::after{content:'';position:absolute;bottom:-16px;right:24px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:16px solid var(--orange);}
 .char-body{width:110px;height:130px;position:relative;cursor:pointer;}
-.char-dismiss{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.char-dismiss{position:absolute;top:-8px;right:-8px;width:44px;height:44px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+@media(max-width:700px){.char-popup{bottom:70px;right:10px;}.char-popup .char-body svg{width:80px!important;height:auto!important;}}
+@media(prefers-reduced-motion:reduce){.char-popup.show{animation:none;}.char-bubble{animation:none!important;}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;}
 
 /* ── ANIMATIONS ── */
 @keyframes popIn{from{transform:scale(0.3) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
@@ -197,10 +202,11 @@ nav{background:white;border-bottom:3px solid var(--orange);display:flex;align-it
 
 <!-- ══ CHARACTER POPUP ═══════════════════════════════════════════════ -->
 <div class="char-popup" id="charPopup">
-  <div class="char-bubble" id="charBubble">
-    <button class="char-dismiss" onclick="window.dismissChar()">✕</button>
-    <button onclick="TTS.speakEnglish(document.getElementById('charText').textContent)" style="position:absolute;top:8px;left:12px;background:none;border:none;font-size:18px;cursor:pointer;padding:0;" title="Listen">🔊</button>
-    <div id="charText" style="font-size:14px;font-weight:700;color:var(--text);line-height:1.6;"></div>
+  <div class="char-bubble" id="charBubble" role="status" aria-live="polite" aria-atomic="true">
+    <button class="char-dismiss" onclick="window.dismissChar()" aria-label="Dismiss character message">✕</button>
+    <button onclick="TTS.speakEnglish(document.getElementById('charText').textContent)" style="position:absolute;top:8px;left:12px;background:none;border:none;font-size:18px;cursor:pointer;padding:0;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;" title="Listen" aria-label="Read aloud">🔊</button>
+    <span class="sr-only" id="charLabel"></span>
+    <div id="charText" style="font-size:14px;font-weight:700;color:var(--text);line-height:1.6;padding-top:4px;"></div>
   </div>
   <div id="charFigure"></div>
 </div>
@@ -595,6 +601,8 @@ async function loadChild(user){
   el("mobNav").style.display="flex";
   scheduleCharPopup();
   if(typeof initNashit!=="undefined")initNashit();
+  ['click','keydown','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,resetIdleTimer,{passive:true}));
+  resetIdleTimer();
   setTimeout(()=>{if(typeof showSpecificChar!=="undefined")showSpecificChar("zaky","Ahlan wa sahlan, "+p.name+"! Your Arabic adventure continues. Let us make today amazing!");},4000);
 }
 
@@ -874,7 +882,7 @@ if(charName==="omar"){
     </svg>`;
   }
 
-  // ZAKY - Detailed anime bear
+  // NASHIT - Firefly character
   if(charName==="nashit"){
     const ns=`animation:nashFloat 3.5s ease-in-out infinite,nashGlowAnim 2.2s ease-in-out infinite;display:inline-block;cursor:pointer;`;
     const sw=Math.round(size*0.72),sh=size;
@@ -1459,6 +1467,7 @@ if(charName==="omar"){
   }
 
 
+  // ZAKY - Purple bear cheerleader
   return `<svg width="${w}" height="${h}" viewBox="0 0 120 186" xmlns="http://www.w3.org/2000/svg" style="${animStyle}" onclick="window.speakCharGreeting('zaky')">
     <defs>
       <radialGradient id="zkBody" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
@@ -1594,17 +1603,50 @@ function dismissChar(){
 
 // -- GUIDE SQUAD MANAGER --
 const GuideSquad={
-  context:'home',_ctxTimer:null,
+  context:'home',_ctxTimer:null,_lastCorrect:0,
   setContext(ctx){if(this.context===ctx)return;this.context=ctx;clearTimeout(this._ctxTimer);this._ctxTimer=setTimeout(()=>this._showContextChar(),2000);},
   _showContextChar(){const opts=GUIDE_DIALOGUES[this.context];if(!opts||!opts.length)return;const d=opts[Math.floor(Math.random()*opts.length)];showSpecificChar(d.char,d.text);},
-  onCorrect(){if(Math.random()<0.28){const opts=GUIDE_DIALOGUES.correct;const d=opts[Math.floor(Math.random()*opts.length)];showSpecificChar(d.char,d.text);}},
-  onWrong(){if(Math.random()<0.52){const opts=GUIDE_DIALOGUES.wrong;const d=opts[Math.floor(Math.random()*opts.length)];showSpecificChar(d.char,d.text);}}
+  onCorrect(){
+    const now=Date.now();if(now-this._lastCorrect<3000)return;this._lastCorrect=now;
+    if(Math.random()<0.28){const opts=GUIDE_DIALOGUES.correct;const d=opts[Math.floor(Math.random()*opts.length)];showSpecificChar(d.char,d.text);}
+  },
+  onWrong(){if(Math.random()<0.52){const opts=GUIDE_DIALOGUES.wrong;const d=opts[Math.floor(Math.random()*opts.length)];showSpecificChar(d.char,d.text);}},
+  onStreakMilestone(streak){
+    const msgs={3:'3-day streak! You are building a beautiful habit!',7:'One full week! Masha-Allah, seven days of Arabic!',14:'Two weeks straight! You are unstoppable!',30:'30 days! You are a true Arabic Adventurer champion!'};
+    const msg=msgs[streak];if(!msg)return;
+    showSpecificChar('zaky','🎉 '+msg);confetti();
+  }
 };
 
+let _typeTimer=null;
+function typeText(el2,text,delay=30){
+  if(_typeTimer)clearInterval(_typeTimer);
+  el2.textContent='';let i=0;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){el2.textContent=text;return;}
+  _typeTimer=setInterval(()=>{el2.textContent+=text[i++];if(i>=text.length)clearInterval(_typeTimer);},delay);
+}
+
+let _idleTimer=null;
+function resetIdleTimer(){
+  clearTimeout(_idleTimer);
+  _idleTimer=setTimeout(()=>{
+    const idlePhrases=[
+      {char:'zaky',text:'Still there? Even a minute of Arabic practice counts! What would you like to explore?'},
+      {char:'omar',text:'Fun fact: The shortest Surah in the Quran is Al-Kawthar — only 3 verses. Want to read it?'},
+      {char:'hana',text:'Need any help? I am right here whenever you are ready to learn!'},
+      {char:'zaky',text:'Your streak is counting on you! Even one question in Word Wizard keeps it alive!'},
+    ];
+    const d=idlePhrases[Math.floor(Math.random()*idlePhrases.length)];
+    showSpecificChar(d.char,d.text);
+  },15000);
+}
+
 function showSpecificChar(charName,text){
-  const popup=el('charPopup');const fig=el('charFigure');const txt=el('charText');
+  const popup=el('charPopup');const fig=el('charFigure');const txt=el('charText');const lbl=el('charLabel');
   if(!popup||!fig||!txt)return;
-  txt.textContent=text;TTS.speakEnglish(text);fig.innerHTML=buildCharHTML(charName,100);
+  const names={omar:'Omar',hana:'Hana',zaky:'Zaky',nashit:'Nashit',meer:'Meer',lilkos:'Lil Kos',sal:'Sal',jazz:'Jazz',fh:'Ustadha FH',noor:'Noor'};
+  if(lbl)lbl.textContent=(names[charName]||'Guide')+' says:';
+  typeText(txt,text);TTS.speakEnglish(text);fig.innerHTML=buildCharHTML(charName,100);
   popup.classList.add('show');clearTimeout(charTimer);
   charTimer=setTimeout(()=>{popup.classList.remove('show');setTimeout(scheduleCharPopup,80000);},15000);
 }
@@ -1789,9 +1831,9 @@ function buildChildUI(data,p){
       <div><div style="font-size:22px;font-weight:800;">Tajweed Rules</div><div style="font-size:14px;color:var(--muted);">The beautiful rules for reciting Quran correctly — tap each rule to learn it!</div></div>
     </div>
     <div id="tajweedList"></div>
+  </div>
 
-
-<!-- 7: MEMORISATION TRACKER -->
+  <!-- 7: MEMORISATION TRACKER -->
   <div class="cpanel" id="cpanel7" style="display:none;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="font-size:38px;animation:float 3s infinite;">📿</div>
@@ -2210,7 +2252,7 @@ function buildParentUI(){
       return '<div class="card" style="border-color:'+prof.color+';border-width:2px;opacity:0.72;">'
        +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
        +'<div style="width:50px;height:50px;border-radius:14px;background:'+prof.accent+';border:3px solid '+prof.color+';display:flex;align-items:center;justify-content:center;font-size:26px;">'+prof.emoji+'</div>'
-       +'<div><div style="font-size:18px;font-weight:800;">'+prof.name+'</div><div style="font-size:12px;color:var(--muted);">Age '+(prof.age||'?')+'</div></div>'
+       +'<div><div style="font-size:18px;font-weight:800;">'+prof.name+'</div><div style="font-size:12px;color:var(--muted);">'+(pkey==='fh'?'Ustadha/Teacher':'Age '+(prof.age||'?'))+'</div></div>'
        +'</div>'
        +'<div style="background:#F8F9FA;border-radius:10px;padding:14px;text-align:center;border:2px dashed var(--border);">'
        +'<div style="font-size:28px;margin-bottom:6px;">&#x1F512;</div>'
@@ -2224,7 +2266,7 @@ function buildParentUI(){
      +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
      +'<div style="width:50px;height:50px;border-radius:14px;background:'+prof.accent+';border:3px solid '+prof.color+';display:flex;align-items:center;justify-content:center;font-size:26px;">'+prof.emoji+'</div>'
      +'<div><div style="font-size:18px;font-weight:800;">'+(d.displayName||d.nickname)+'</div>'
-     +'<div style="font-size:12px;color:var(--muted);">Age '+(d.age||'?')+' &middot; Last active: '+(d.lastActive||'never')+'</div></div>'
+     +'<div style="font-size:12px;color:var(--muted);">'+(pkey==='fh'?'<span style="background:#FFE0EB;color:#be185d;padding:2px 8px;border-radius:10px;font-weight:800;font-size:11px;">Ustadha/Teacher</span>':'Age '+(d.age||'?'))+' &middot; Last active: '+(d.lastActive||'never')+'</div></div>'
      +'<div style="margin-left:auto;"><div class="pill" style="background:var(--gold-light);color:var(--gold-dark);border:2px solid var(--gold);">&#11088; '+(d.stars||0)+'</div></div>'
      +'</div>'
      +'<div style="background:'+prof.color+'11;border-radius:10px;padding:10px;margin-bottom:12px;border:1px solid '+prof.color+'33;">'
@@ -2500,6 +2542,7 @@ async function markDayDone(){
   await saveProgress({streak:newStreak, stars:ns, lastStudyDay:today2});
   window._data.streak=newStreak; window._data.stars=ns; window._data.lastStudyDay=today2;
   showReward("🔥","Day "+newStreak+" Complete!","Your streak is now "+newStreak+" days! +50 ⭐",50);
+  setTimeout(()=>GuideSquad.onStreakMilestone(newStreak),2000);
   buildDailyTimer();
 }
 
