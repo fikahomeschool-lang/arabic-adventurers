@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Arabic Adventurers</title>
+<title>NoorBridge Academy — The Arabic Adventurers</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -162,8 +162,9 @@ button,a,[role="button"]{min-height:44px;min-width:44px;}
       <!-- Characters rendered by JS after load -->
     </div>
 
-    <div style="font-size:30px;font-weight:800;color:var(--text);">The Arabic Adventurers</div>
-    <div style="font-size:15px;color:var(--muted);margin-top:4px;">Your Quran learning world 🌙✨</div>
+    <div style="font-size:26px;font-weight:800;color:var(--text);">NoorBridge Academy</div>
+    <div style="font-size:13px;color:var(--orange);font-weight:800;margin-top:2px;letter-spacing:0.5px;">THE ARABIC ADVENTURERS</div>
+    <div style="font-size:14px;color:var(--muted);margin-top:4px;">Your Quranic Bridge to understanding 🌙✨</div>
   </div>
   <div class="card" style="border:3px solid var(--orange);box-shadow:0 12px 40px rgba(255,107,53,0.15);">
     <div style="font-size:22px;font-weight:800;text-align:center;margin-bottom:24px;">Welcome back, Adventurer! 🎉</div>
@@ -253,11 +254,17 @@ const db=getFirestore(fbApp);
 
 const EMAIL_MAP={"ameerfika46@gmail.com":"meer","fahadfika099@gmail.com":"lilkos","salmanfika16@gmail.com":"sal","jasminefika226@gmail.com":"jazz","fg7469@gmail.com":"fh"};
 const PROFILES={
-  meer:{name:"Meer",age:13,emoji:"🦁",color:"#0D7377",accent:"#E0F5F5",greeting:"The Scholar is here! مرحباً يا أمير!"},
-  lilkos:{name:"Lil Kos",age:12,emoji:"🐯",color:"#7c3aed",accent:"#EDE0F5",greeting:"The Bridge Builder! يلا يا فهد!"},
-  sal:{name:"Sal",age:10,emoji:"🦊",color:"#ea580c",accent:"#FFF0E8",greeting:"The Decoder is ready! أهلاً يا سلمان!"},
-  jazz:{name:"Jazz",age:8,emoji:"🐬",color:"#0891b2",accent:"#E0F5FF",greeting:"Adventure begins! يا جاز!"},
-  fh:{name:"FH",age:0,emoji:"🌙",color:"#be185d",accent:"#FFE0EB",greeting:"Ahlan Ustadha! أهلاً وسهلاً!"}
+  meer:{name:"Meer",age:13,emoji:"🦁",color:"#0D7377",accent:"#E0F5F5",greeting:"The Scholar is here! مرحباً يا أمير!",track:"bridgeBuilder"},
+  lilkos:{name:"Lil Kos",age:12,emoji:"🐯",color:"#7c3aed",accent:"#EDE0F5",greeting:"The Bridge Builder! يلا يا فهد!",track:"bridgeBuilder"},
+  sal:{name:"Sal",age:10,emoji:"🦊",color:"#ea580c",accent:"#FFF0E8",greeting:"The Decoder is ready! أهلاً يا سلمان!",track:"decoder"},
+  jazz:{name:"Jazz",age:8,emoji:"🐬",color:"#0891b2",accent:"#E0F5FF",greeting:"Adventure begins! يا جاز!",track:"decoder"},
+  fh:{name:"FH",age:0,emoji:"🌙",color:"#be185d",accent:"#FFE0EB",greeting:"Ahlan Ustadha! أهلاً وسهلاً!",track:"scholar"}
+};
+
+const TRACKS={
+  decoder:{name:"The Decoder",ages:"8–10",emoji:"🌟",color:"var(--orange)",bg:"var(--orange-light)",desc:"Playful, game-heavy learning for young explorers"},
+  bridgeBuilder:{name:"Bridge Builder",ages:"11–14",emoji:"🌉",color:"var(--sky-dark)",bg:"var(--sky-light)",desc:"Structured, data-driven progress for motivated learners"},
+  scholar:{name:"The Scholar",ages:"15+",emoji:"🎓",color:"var(--purple)",bg:"var(--purple-light)",desc:"Self-directed intensive study with Nahw and Tafsir"}
 };
 const PARENT_EMAIL="fikahomeschool@gmail.com";
 
@@ -341,24 +348,44 @@ const CHAR_FACTS=[
   {char:"zaky",text:"There are 28 letters in the Arabic alphabet — the same number as days in the shortest month! Can you learn one a day? 🗓️"},
 ];
 
-// ── 16-WEEK CURRICULUM ──
+// ── 16-WEEK NOORBRIDGE CURRICULUM ──
 const CURRICULUM=[
-  {week:1,phase:"Decode",title:"Alphabet Adventure — Letters 1-7",daily:"Learn Alif, Ba, Ta, Tha, Jim, Ha, Kha. Draw each letter 5 times.",goal:"Recognise 7 letters",xp:100,color:"var(--orange)"},
-  {week:2,phase:"Decode",title:"Alphabet Adventure — Letters 8-14",daily:"Learn Dal, Dhal, Ra, Zain, Sin, Shin, Sad. Use mnemonics.",goal:"Recognise 14 letters",xp:100,color:"var(--orange)"},
-  {week:3,phase:"Decode",title:"Alphabet Adventure — Letters 15-21",daily:"Learn Dad, Ta-heavy, Dha, Ain, Ghain, Fa, Qaf.",goal:"Recognise 21 letters",xp:100,color:"var(--orange)"},
-  {week:4,phase:"Decode",title:"Alphabet Mastery — Letters 22-28 + Vowels",daily:"Learn Kaf, Lam, Mim, Nun, Ha, Waw, Ya. Add short vowels (fatha, kasra, damma).",goal:"Read all 28 letters with vowels. Read Al-Fatiha.",xp:150,color:"var(--orange)"},
-  {week:5,phase:"Connect",title:"Hover-Pause-Reflect — Short Surahs",daily:"Read Al-Ikhlas, Al-Falaq, An-Nas with side-by-side. Hover. Pause. Reflect.",goal:"Read 3 Surahs with comprehension",xp:150,color:"var(--green)"},
-  {week:6,phase:"Connect",title:"Audio Shadowing — Follow the Reciter",daily:"Play a Surah. Shadow Sheikh Alafasy. Pause and repeat each verse.",goal:"Mimic pronunciation of 5 Surahs",xp:150,color:"var(--green)"},
-  {week:7,phase:"Connect",title:"Tajweed Basics — Ghunnah & Madd",daily:"Learn Ghunnah (nasal sound on ن and م). Learn Madd (long vowels).",goal:"Apply 2 Tajweed rules correctly",xp:200,color:"var(--green)"},
-  {week:8,phase:"Connect",title:"Tajweed — Qalqalah & Sukoon",daily:"Learn Qalqalah (bouncing sound on ق ط ب ج د). Practice with Al-Falaq.",goal:"Read 5 verses with Qalqalah marked",xp:200,color:"var(--green)"},
-  {week:9,phase:"Bridge",title:"Juz Amma Sprint — Surahs 78-85",daily:"Read Surah An-Naba through Al-Inshiqaq side-by-side. One Surah per day.",goal:"Complete 8 Surahs with meaning",xp:250,color:"var(--sky)"},
-  {week:10,phase:"Bridge",title:"Juz Amma Sprint — Surahs 86-95",daily:"Read At-Tariq through Ash-Shams. Focus on understanding the message.",goal:"Complete 10 more Surahs with meaning",xp:250,color:"var(--sky)"},
-  {week:11,phase:"Bridge",title:"Juz Amma Sprint — Surahs 96-114",daily:"Complete Juz Amma! Al-Alaq to An-Nas. Celebrate with family!",goal:"Complete ALL of Juz Amma",xp:350,color:"var(--sky)"},
-  {week:12,phase:"Bridge",title:"Root Detective — 100 High-Frequency Words",daily:"Learn 10 Quranic root words per day. Play Word Wizard daily.",goal:"Recognise 100 root words",xp:300,color:"var(--sky)"},
-  {week:13,phase:"Understand",title:"Vocabulary Accelerator — 200 Words",daily:"Continue Word Wizard. Try to guess meaning BEFORE seeing English.",goal:"Recognise 200 root words",xp:350,color:"var(--purple)"},
-  {week:14,phase:"Understand",title:"The 300-Word Milestone",daily:"Final vocabulary push. Review all previous words. No peeking!",goal:"Recognise 300 root words — unlock independent reading!",xp:400,color:"var(--purple)"},
-  {week:15,phase:"Mastery",title:"Independent Reading — 1 Page Challenge",daily:"Read 1 page of Quran. First pass Arabic only. Second pass side-by-side.",goal:"Read 1 full page with under 20% lookup",xp:500,color:"var(--gold-dark)"},
-  {week:16,phase:"Mastery",title:"Scholar Certification — Final Assessment",daily:"Read Al-Fatiha + 5 Surahs of choice from memory with correct Tajweed.",goal:"Graduate as a Quran Reader! 🎓",xp:1000,color:"var(--gold-dark)"},
+  {week:1,phase:"Decode",title:"Unlocking the Code — Letters 1–7",letters:"ا ب ت ث ج ح خ",daily:"Learn Alif, Ba, Ta, Tha, Jim, Ha, Kha with mnemonic pictures. Draw each letter 5 times and say its sound aloud. Aim to recognise all 7 by session end!",goal:"Recognise 7 letters with correct sounds",badge:{name:"Code Breaker Initiate",tier:"Bronze",emoji:"🥉"},xp:100,color:"var(--orange)",tracks:{decoder:"Play Letter Safari! Match each letter to its mnemonic picture. Max 15 mins — then rest!",bridgeBuilder:"Write each letter 5 times. Learn the sound, mnemonic, and how it connects at start/middle/end of words.",scholar:"Study letter forms, sounds and etymologies. Note Arabic roots hiding in English words (algebra = al-jabr!)."}},
+  {week:2,phase:"Decode",title:"Letter Families — Letters 8–14",letters:"د ذ ر ز س ش ص",daily:"Learn Dal, Dhal, Ra, Zain, Sin, Shin, Sad. Group them: Door family (د ذ), Swan family (ر ز), Wave family (س ش).",goal:"Recognise 14 letters using family groupings",badge:{name:"Letter Explorer",tier:"Bronze",emoji:"🥉"},xp:100,color:"var(--orange)",tracks:{decoder:"Sing the Letter Families song! Door, Door-with-hat, Swan, Swan-zap, Waves, Waves-with-stars, Sleeping-cat!",bridgeBuilder:"Learn connected forms — how does س look at start, middle, end of a word? Practise with real Quranic words.",scholar:"Explore the Semitic root system. How do letter sounds relate across Arabic, Hebrew and Aramaic?"}},
+  {week:3,phase:"Decode",title:"Heavy vs Light — Letters 15–21",letters:"ض ط ظ ع غ ف ق",daily:"Learn Dad, Ta-heavy, Dha, Ain, Ghain, Fa, Qaf. Key focus: the difference between heavy (emphatic) and light letters.",goal:"Recognise 21 letters. Pronounce heavy letters correctly.",badge:{name:"Sound Architect",tier:"Bronze",emoji:"🥉"},xp:100,color:"var(--orange)",tracks:{decoder:"Throat Explorer! Feel where each sound comes from — lips, teeth, or throat? Use the body map to remember.",bridgeBuilder:"Heavy vs Light pairs: ت/ط, س/ص, د/ض. Record yourself and compare. Aim for clear distinction.",scholar:"Study Makhaarij al-Huroof (articulation points). Map all 28 letters to their exact point of articulation."}},
+  {week:4,phase:"Decode",title:"Complete the Code + Short Vowels",letters:"ك ل م ن ه و ي + Fatha / Kasra / Damma",daily:"Learn the last 7 letters: Kaf, Lam, Mim, Nun, Ha, Waw, Ya. Then add short vowels — fatha (a), kasra (i), damma (u). READ AL-FATIHA at the end — you've earned it!",goal:"Read all 28 letters with vowels. Read Al-Fatiha! 🎉",badge:{name:"Master Decoder",tier:"Bronze",emoji:"🥉"},xp:150,color:"var(--orange)",tracks:{decoder:"Big celebration! You know ALL the letters! Read Al-Fatiha with Mama and get a stamp in your learning passport!",bridgeBuilder:"Speed drill: flashcards with vowels, aim 1 letter per second. Then read Al-Fatiha unaided.",scholar:"Analyse Al-Fatiha grammatically: identify nouns, verbs, prepositions. Note all vowel patterns and their functions."}},
+  {week:5,phase:"Connect",title:"Hover-Pause-Reflect — Short Surahs",letters:"Al-Ikhlas · Al-Falaq · An-Nas",daily:"Use the Side-by-Side Reader. Read Al-Ikhlas, Al-Falaq, An-Nas. Hover each Arabic word, pause, reflect on meaning before reading English.",goal:"Read 3 Surahs understanding each verse",badge:{name:"Tajweed Apprentice",tier:"Silver",emoji:"🥈"},xp:150,color:"var(--green)",tracks:{decoder:"Point-and-follow: finger on each Arabic word as you hear it. Match it to the English below. You're reading Quran!",bridgeBuilder:"Read Arabic first, guess the English, then check. Score yourself — how many words can you get?",scholar:"Analyse the theology of each Surah. What does Al-Ikhlas tell us about Tawheed (Oneness of God)?"}},
+  {week:6,phase:"Connect",title:"Audio Shadowing — Follow the Reciter",letters:"Surahs 112–114 + review surahs",daily:"Play a Surah with Sheikh Alafasy. Shadow (repeat softly, immediately after). Pause on difficult verses. Repeat × 3.",goal:"Mimic pronunciation of 5 Surahs accurately",badge:{name:"Shadow Master",tier:"Silver",emoji:"🥈"},xp:150,color:"var(--green)",tracks:{decoder:"Parrot mode! Copy the sounds — don't worry about meaning yet. Make it fun with dramatic voices!",bridgeBuilder:"Record yourself shadowing. Compare to Sheikh. Identify 3 things to improve each day.",scholar:"Analyse the musical patterns: rhyme scheme, rhythm, sound symbolism in Al-Fatiha and the Quls."}},
+  {week:7,phase:"Connect",title:"Tajweed Basics — Ghunnah & Madd",letters:"Tajweed rules in context",daily:"Learn Ghunnah (nasal sound on ن م with shaddah — 2 beats). Learn Madd — short (2 beats) and long (4–6 beats). Mark them in Al-Fatiha.",goal:"Apply 2 Tajweed rules correctly in context",badge:{name:"Melody Maker",tier:"Silver",emoji:"🥈"},xp:200,color:"var(--green)",tracks:{decoder:"Ghunnah Humming Game: hum through your nose every time you see shaddah on ن or م. Count the hums!",bridgeBuilder:"Mark up a Surah with coloured pens: red = Ghunnah, blue = Madd. Then recite with correct timing.",scholar:"Study the theoretical basis of Tajweed: why did scholars codify these rules? What does it preserve?"}},
+  {week:8,phase:"Connect",title:"Tajweed — Qalqalah & Phase 2 Checkpoint",letters:"Qalqalah letters: ق ط ب ج د",daily:"Learn Qalqalah — the bouncing sound on ق ط ب ج د when they stop (sukoon). Practise with Al-Falaq and Al-Ikhlas. Phase 2 complete!",goal:"Read 5 verses with Qalqalah correctly. Phase 2 checkpoint!",badge:{name:"Quranic Musician",tier:"Silver",emoji:"🥈"},xp:200,color:"var(--green)",tracks:{decoder:"Bounce Ball game! Tap the table every time you hear a Qalqalah bounce. Count all 5 letters in Al-Falaq!",bridgeBuilder:"Record yourself. Can you hear the bounce clearly? All 5 Qalqalah letters should pop.",scholar:"Phase 2 reflection: write a one-page summary of your Tajweed journey. Which rules feel natural?"}},
+  {week:9,phase:"Bridge",title:"Juz Amma Sprint — Surahs 78–85",letters:"An-Naba through Al-Buruj",daily:"Read Surah An-Naba through Al-Buruj side-by-side. One Surah per day minimum. Hover. Pause. Reflect. Note powerful vocabulary.",goal:"Complete 8 Surahs with understanding",badge:{name:"Juz Amma Explorer",tier:"Gold",emoji:"🥇"},xp:250,color:"var(--sky)",tracks:{decoder:"Read with a parent! Take turns — child reads Arabic, parent reads English. Discuss the message.",bridgeBuilder:"Underline every word you understand on the Arabic side. Track your percentage — aim for 40%.",scholar:"Thematic analysis: what recurring themes appear in Surahs 78–85? Connect to Islamic aqeedah."}},
+  {week:10,phase:"Bridge",title:"Root Detective — Surahs 86–95",letters:"At-Tariq through At-Tin",daily:"Read At-Tariq through At-Tin. Introduce Root Detective: underline repeating roots across Surahs. Build your root word map.",goal:"Complete 10 Surahs. Identify 20+ root words.",badge:{name:"Root Detective",tier:"Gold",emoji:"🥇"},xp:250,color:"var(--sky)",tracks:{decoder:"Root Word Stamp! Each new root you find, stamp it in your vocabulary passport and say its meaning!",bridgeBuilder:"Build a root map: find ك-ت-ب (write), ع-ل-م (know), ر-ح-م (mercy) — how many forms of each appear?",scholar:"Deep morphology: study fa'ala, fa'il, maf'ool patterns with Quranic examples from this week's Surahs."}},
+  {week:11,phase:"Bridge",title:"Juz Amma Complete! — Surahs 96–114",letters:"Al-Alaq through An-Nas",daily:"Complete Juz Amma — Al-Alaq to An-Nas! Remember: the first word revealed was Iqra — Read! Celebrate this milestone with your family!",goal:"Complete ALL of Juz Amma! 🎉",badge:{name:"Juz Amma Champion",tier:"Gold",emoji:"🥇"},xp:350,color:"var(--sky)",tracks:{decoder:"Family celebration! Recite your favourite Surah from Juz Amma to the whole family. You did it!",bridgeBuilder:"Full Juz Amma quiz: explain the main message of 10 Surahs from memory. No peeking!",scholar:"Write a complete thematic overview of Juz Amma: major themes, recurring vocabulary, theological significance."}},
+  {week:12,phase:"Bridge",title:"The 300-Word Hack — Root Vocabulary Sprint",letters:"High-frequency Quranic roots",daily:"The 300 most common Quranic roots cover 70% of the Quran. Use Word Wizard daily. Learn 10 roots per day — that's 70 this week!",goal:"Recognise 100 root words in context",badge:{name:"Vocabulary Champion",tier:"Platinum",emoji:"💎"},xp:300,color:"var(--sky)",tracks:{decoder:"Root Word Stories: every root gets a mini-story. ر-ح-م (mercy) — Ar-Rahman, Ar-Raheem, rahma. All one root!",bridgeBuilder:"Spaced repetition: wrong answers come back 2× sooner, right answers rest longer. Trust the system!",scholar:"Study morphological patterns: masdar, ism fa'il, ism maf'ool for each root. Build a pattern table."}},
+  {week:13,phase:"Understand",title:"Vocabulary Accelerator — 200 Words",letters:"Top 200 Quranic roots",daily:"Continue Word Wizard. This week: GUESS the meaning before seeing English. The attempt builds memory even if wrong.",goal:"Recognise 200 root words in context",badge:{name:"Independent Reader",tier:"Platinum",emoji:"💎"},xp:350,color:"var(--purple)",tracks:{decoder:"Matching Memory game! Match Arabic root to English meaning. Fastest time wins a bonus star!",bridgeBuilder:"Read a Surah without English side-by-side. Write what you think it means, then check. Measure accuracy.",scholar:"Comparative vocabulary: find 20 Quranic words in modern Arabic. How has meaning shifted over 1400 years?"}},
+  {week:14,phase:"Understand",title:"Nahw Introduction — Sentence Structure",letters:"Grammar + 250 word milestone",daily:"Arabic grammar basics: every Quranic sentence has a mubtada (subject) and khabar (predicate). Learn to spot them in Al-Quran.",goal:"Reach 250 root words. Identify sentence structure.",badge:{name:"Grammar Scholar",tier:"Platinum",emoji:"💎"},xp:400,color:"var(--purple)",tracks:{decoder:"Sentence Sandwich! 'The cat is big' = cat (mubtada) + is big (khabar). Find sandwiches in Al-Ikhlas!",bridgeBuilder:"Parse 10 Quranic sentences: identify mubtada and khabar. Check with a grammar reference.",scholar:"Deep Nahw: ism, fi'l, harf classification. Study raf', nasb, jarr case endings in 20 Quranic verses."}},
+  {week:15,phase:"Understand",title:"Tafsir Integration — Deep Understanding",letters:"300-word milestone + Tafsir method",daily:"5-step Tafsir process: 1) Read Arabic · 2) Identify known words · 3) Read translation · 4) Check Tafsir notes · 5) Reflect and apply to your life.",goal:"Understand a Surah at Tafsir depth",badge:{name:"Tafsir Thinker",tier:"Diamond",emoji:"💠"},xp:500,color:"var(--purple)",tracks:{decoder:"Story Tafsir: tell the message of a Surah as a story. Draw it! Make it visual and memorable.",bridgeBuilder:"Write a 1-paragraph Tafsir summary for 3 Surahs. Use translation + your own words + real-life connection.",scholar:"Comparative Tafsir: compare Ibn Kathir and Sayyid Qutb on one Surah. What does each scholar emphasise?"}},
+  {week:16,phase:"Mastery",title:"Scholar Certification — Graduate! 🎓",letters:"Final assessment + graduation",daily:"Read Al-Fatiha + 5 chosen Surahs with correct Tajweed. Explain the meaning of each Surah. This is your graduation recital!",goal:"Graduate as a Quran Reader! 🎓",badge:{name:"Bridge Builder Graduate",tier:"Diamond",emoji:"💠"},xp:1000,color:"var(--gold-dark)",tracks:{decoder:"Graduation Recital: perform Al-Fatiha + 2 Surahs for your family. Receive your Decoder Certificate!",bridgeBuilder:"Full assessment: read, translate and explain 5 Surahs. Receive your Bridge Builder Certificate!",scholar:"Scholar presentation: teach a younger sibling one concept from each Phase. Receive your Scholar Certificate!"}},
+];
+
+// ── BADGES SYSTEM ──
+const BADGES=[
+  {name:"Code Breaker Initiate",tier:"Bronze",emoji:"🥉",week:1,desc:"Learned your first 7 Arabic letters!"},
+  {name:"Letter Explorer",tier:"Bronze",emoji:"🥉",week:2,desc:"14 letters mastered with family groupings"},
+  {name:"Sound Architect",tier:"Bronze",emoji:"🥉",week:3,desc:"21 letters — heavy and light sounds"},
+  {name:"Master Decoder",tier:"Bronze",emoji:"🥉",week:4,desc:"All 28 letters + read Al-Fatiha!"},
+  {name:"Tajweed Apprentice",tier:"Silver",emoji:"🥈",week:5,desc:"Read 3 Surahs with real understanding"},
+  {name:"Shadow Master",tier:"Silver",emoji:"🥈",week:6,desc:"Audio shadowing mastered"},
+  {name:"Melody Maker",tier:"Silver",emoji:"🥈",week:7,desc:"Ghunnah & Madd rules applied correctly"},
+  {name:"Quranic Musician",tier:"Silver",emoji:"🥈",week:8,desc:"Qalqalah mastered — Phase 2 complete!"},
+  {name:"Juz Amma Explorer",tier:"Gold",emoji:"🥇",week:9,desc:"First 8 Surahs of Juz Amma completed"},
+  {name:"Root Detective",tier:"Gold",emoji:"🥇",week:10,desc:"20+ root words identified in context"},
+  {name:"Juz Amma Champion",tier:"Gold",emoji:"🥇",week:11,desc:"Complete Juz Amma with understanding!"},
+  {name:"Vocabulary Champion",tier:"Platinum",emoji:"💎",week:12,desc:"100 root words recognised in the Quran"},
+  {name:"Independent Reader",tier:"Platinum",emoji:"💎",week:13,desc:"200 root words — reading independently"},
+  {name:"Grammar Scholar",tier:"Platinum",emoji:"💎",week:14,desc:"250 words + Nahw (grammar) foundations"},
+  {name:"Tafsir Thinker",tier:"Diamond",emoji:"💠",week:15,desc:"Deep Tafsir understanding achieved"},
+  {name:"Bridge Builder Graduate",tier:"Diamond",emoji:"💠",week:16,desc:"Graduated — a true Quran Reader! 🎓"},
 ];
 
 // ── TAJWEED RULES ──
@@ -575,14 +602,25 @@ async function loadChild(user){
   el("mobNav").style.display="flex";
   // Welcome message on login
   setTimeout(()=>{
-    const welcomes={
-      meer:"Ahlan Meer! The Scholar has arrived! Ready to unlock some Arabic today? 🦁",
-      lilkos:"Yalla Lil Kos! Time to build bridges to the Quran! You've got this! 🐯",
-      sal:"Ahlan Sal! The Decoder is ready — let's crack some Arabic letters today! 🦊",
-      jazz:"Hey Jazz! Adventure time! Let's explore the Quran world together! 🐬",
-      fh:"Ahlan Ustadha! Welcome to your learning space. Barakallahu feeki! 🌙"
+    const track=PROFILES[profileKey]?.track||"bridgeBuilder";
+    const trackWelcomes={
+      decoder:{
+        meer:"Ahlan Meer! Let's decode some Arabic today — every letter you learn is a key! 🦁",
+        sal:"Ahlan Sal, The Decoder! Ready to crack the Arabic code? Let's go! 🦊",
+        jazz:"Hey Jazz! Time for an Arabic adventure — let's meet some new letters today! 🐬",
+      },
+      bridgeBuilder:{
+        meer:"Ahlan Meer! The Bridge Builder is here — let's connect Arabic to meaning today! 🦁",
+        lilkos:"Yalla Lil Kos! Time to build bridges between Arabic and understanding! 🐯",
+      },
+      scholar:{
+        fh:"Ahlan Ustadha! Your NoorBridge Scholar space awaits. Barakallahu feeki! 🌙",
+      }
     };
-    showCharMsg("zaky", welcomes[profileKey]||"Ahlan! Ready for today's Arabic adventure?");
+    const msg=trackWelcomes[track]?.[profileKey]
+      ||{decoder:"Ahlan! The Decoder is ready — let's crack some Arabic letters today! 🌟",bridgeBuilder:"Ahlan! Time to build bridges to the Quran — you've got this! 🌉",scholar:"Ahlan! Welcome back, Scholar. Let's seek some knowledge today! 🎓"}[track]
+      ||"Ahlan! Ready for today's NoorBridge adventure?";
+    showCharMsg("zaky", msg);
   }, 1500);
   scheduleCharPopup();
   // Apply saved voice state to toggle button
@@ -851,7 +889,7 @@ function buildChildUI(data,p){
 
   el("child-nav").innerHTML=`<nav>
     <div class="nav-gem" style="background:${color};">${p.emoji}</div>
-    <div><div style="font-size:17px;font-weight:800;color:var(--text);">${p.name}'s Adventure</div><span style="font-size:11px;color:var(--muted);display:block;">The Arabic Adventurers</span></div>
+    <div><div style="font-size:17px;font-weight:800;color:var(--text);">${p.name}'s NoorBridge</div><span style="font-size:11px;color:var(--muted);display:block;">${TRACKS[p.track]?.emoji||'📚'} ${TRACKS[p.track]?.name||'Learner'} · Week ${currentWeek}/16</span></div>
     <div class="nav-tabs">
       <button class="nav-tab ctab active" onclick="window.switchTab(0)" style="background:var(--orange);color:white;">🏠 Home</button>
       <button class="nav-tab ctab" onclick="window.switchTab(1)">📅 Plan</button>
@@ -899,13 +937,27 @@ function buildChildUI(data,p){
       </div>
       <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted);">They will pop up to share fun facts! Look out for them! 👀</div>
     </div>
-    <!-- Stats -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px;">
-      <div class="stat-card" style="background:var(--gold-light);border:2px solid var(--gold);"><span style="font-size:24px;">⭐</span><span class="stat-num" style="color:var(--gold-dark);">${stars}</span><span class="stat-label" style="color:var(--gold-dark);">Stars</span></div>
-      <div class="stat-card" style="background:#FFF0E8;border:2px solid var(--orange);"><span style="font-size:24px;">🔥</span><span class="stat-num" style="color:var(--orange-dark);">${streak}</span><span class="stat-label" style="color:var(--orange-dark);">Streak</span></div>
-      <div class="stat-card" style="background:var(--sky-light);border:2px solid var(--sky);"><span style="font-size:24px;">🔤</span><span class="stat-num" style="color:var(--sky-dark);">${letters}</span><span class="stat-label" style="color:var(--sky-dark);">Letters</span></div>
-      <div class="stat-card" style="background:var(--green-light);border:2px solid var(--green);"><span style="font-size:24px;">✅</span><span class="stat-num" style="color:var(--green-dark);">${lessons}</span><span class="stat-label" style="color:var(--green-dark);">Lessons</span></div>
+    <!-- Track Badge -->
+    <div class="card" style="border-color:${TRACKS[p.track]?.color||'var(--orange)'};background:${TRACKS[p.track]?.bg||'var(--orange-light)'};margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:52px;height:52px;border-radius:16px;background:${TRACKS[p.track]?.color||'var(--orange)'};display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">${TRACKS[p.track]?.emoji||'🌟'}</div>
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:800;color:${TRACKS[p.track]?.color||'var(--orange)'};letter-spacing:1px;margin-bottom:2px;">YOUR LEARNING TRACK</div>
+          <div style="font-weight:800;font-size:16px;color:var(--text);">${TRACKS[p.track]?.name||'Learner'} <span style="font-size:12px;font-weight:700;color:var(--muted);">Ages ${TRACKS[p.track]?.ages||''}</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:1px;">${TRACKS[p.track]?.desc||''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-size:11px;font-weight:800;color:var(--muted);">Week</div><div style="font-size:28px;font-weight:800;color:${TRACKS[p.track]?.color||'var(--orange)'};">${currentWeek}</div><div style="font-size:10px;color:var(--muted);">of 16</div></div>
+      </div>
     </div>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:16px;">
+      <div class="stat-card" style="background:var(--gold-light);border:2px solid var(--gold);"><span style="font-size:22px;">⭐</span><span class="stat-num" style="color:var(--gold-dark);">${stars}</span><span class="stat-label" style="color:var(--gold-dark);">Stars</span></div>
+      <div class="stat-card" style="background:#FFF0E8;border:2px solid var(--orange);"><span style="font-size:22px;">🔥</span><span class="stat-num" style="color:var(--orange-dark);">${streak}</span><span class="stat-label" style="color:var(--orange-dark);">Streak</span></div>
+      <div class="stat-card" style="background:var(--sky-light);border:2px solid var(--sky);"><span style="font-size:22px;">🔤</span><span class="stat-num" style="color:var(--sky-dark);">${letters}</span><span class="stat-label" style="color:var(--sky-dark);">Letters</span></div>
+      <div class="stat-card" style="background:var(--green-light);border:2px solid var(--green);"><span style="font-size:22px;">✅</span><span class="stat-num" style="color:var(--green-dark);">${lessons}</span><span class="stat-label" style="color:var(--green-dark);">Lessons</span></div>
+    </div>
+    <!-- Badges earned -->
+    <div id="homeBadges" style="margin-bottom:16px;"></div>
     <!-- 90-day progress -->
     <div class="card" style="border-color:var(--orange);margin-bottom:16px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="font-size:26px;">🎯</div><div><div style="font-weight:800;font-size:16px;">90-Day Challenge</div><div style="font-size:13px;color:var(--muted);">Day ${streak} of 90 — ${90-streak} to go!</div></div></div>
@@ -926,15 +978,13 @@ function buildChildUI(data,p){
 
   <!-- 1: CURRICULUM PLAN -->
   <div class="cpanel" id="cpanel1" style="display:none;">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
       <div style="font-size:38px;animation:wiggle 2s infinite;">📅</div>
-      <div><div style="font-size:22px;font-weight:800;">16-Week Quranic Bridge Plan</div><div style="font-size:14px;color:var(--muted);">Based on the Kimi curriculum — your roadmap to reading Arabic!</div></div>
+      <div><div style="font-size:22px;font-weight:800;">NoorBridge 16-Week Plan</div><div style="font-size:14px;color:var(--muted);">Your personalised roadmap to reading and understanding Arabic!</div></div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
-      ${["Decode","Connect","Bridge","Understand","Mastery"].map((ph,i)=>{
-        const cols=["var(--orange)","var(--green)","var(--sky-dark)","var(--purple)","var(--gold-dark)"];
-        return `<div style="padding:6px 14px;border-radius:20px;background:${cols[i]}22;border:2px solid ${cols[i]};font-size:13px;font-weight:800;color:${cols[i]};">Phase ${i+1}: ${ph}</div>`;
-      }).join("")}
+    <!-- Phase legend -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px;">
+      ${[["Decode","Weeks 1–4","var(--orange)","Master Arabic phonetics"],["Connect","Weeks 5–8","var(--green)","Tajweed + short surahs"],["Bridge","Weeks 9–12","var(--sky-dark)","Juz Amma + roots"],["Understand","Weeks 13–15","var(--purple)","Grammar + Tafsir"],["Mastery","Week 16","var(--gold-dark)","Graduate! 🎓"]].map(([ph,wks,col,sub])=>`<div style="padding:10px 12px;border-radius:14px;background:${col}18;border:2px solid ${col};"><div style="font-size:12px;font-weight:800;color:${col};">${ph}</div><div style="font-size:10px;color:var(--muted);font-weight:700;">${wks}</div><div style="font-size:11px;color:${col};margin-top:2px;font-weight:600;">${sub}</div></div>`).join("")}
     </div>
     <div id="curriculumList"></div>
   </div>
@@ -1018,9 +1068,9 @@ function buildChildUI(data,p){
       <div><div style="font-size:22px;font-weight:800;">Tajweed Rules</div><div style="font-size:14px;color:var(--muted);">The beautiful rules for reciting Quran correctly — tap each rule to learn it!</div></div>
     </div>
     <div id="tajweedList"></div>
+  </div>
 
-
-<!-- 7: MEMORISATION TRACKER -->
+  <!-- 7: MEMORISATION TRACKER -->
   <div class="cpanel" id="cpanel7" style="display:none;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="font-size:38px;animation:float 3s infinite;">📿</div>
@@ -1043,6 +1093,7 @@ function buildChildUI(data,p){
   `;
 
   buildCurriculum();
+  buildHomeBadges();
   buildSurahGrid();
   initAlpha();
   initVocab();
@@ -1053,36 +1104,107 @@ function buildChildUI(data,p){
 // ── CURRICULUM ──
 function buildCurriculum(){
   const el2=el("curriculumList");if(!el2)return;
+  const track=PROFILES[window._prof||"meer"]?.track||"bridgeBuilder";
   const phase_colors={Decode:"var(--orange)",Connect:"var(--green)",Bridge:"var(--sky-dark)",Understand:"var(--purple)",Mastery:"var(--gold-dark)"};
   el2.innerHTML=CURRICULUM.map((w,i)=>{
-    const done=w.week<currentWeek;const curr=w.week===currentWeek;
+    const done=w.week<currentWeek;const curr=w.week===currentWeek;const locked=w.week>currentWeek;
     const bgColor=done?"#F8F8F8":curr?w.color+"18":"white";
-    const borderColor=curr?w.color:done?"#E0E0E0":w.color+"44";
+    const borderColor=curr?w.color:done?"#ddd":w.color+"33";
+    const trackTask=w.tracks?.[track]||w.daily;
     return `<div class="week-card ${done?'done':''} ${curr?'current':''}" style="background:${bgColor};border-color:${borderColor};" onclick="window.showWeekDetail(${i})">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:${done?"var(--green)":curr?w.color:"#E0E0E0"};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">${done?"✓":w.week}</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:${done?"var(--green)":curr?w.color:"#DDD"};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;">${done?"✓":w.week}</div>
         <div style="flex:1;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
             <span style="font-size:10px;font-weight:800;color:${phase_colors[w.phase]||w.color};background:${phase_colors[w.phase]||w.color}18;padding:2px 8px;border-radius:10px;">${w.phase.toUpperCase()}</span>
-            ${curr?`<span style="font-size:10px;font-weight:800;color:white;background:var(--orange);padding:2px 8px;border-radius:10px;">CURRENT WEEK</span>`:""}
+            ${curr?`<span style="font-size:10px;font-weight:800;color:white;background:var(--orange);padding:2px 8px;border-radius:10px;">▶ CURRENT</span>`:""}
+            ${w.badge?`<span style="font-size:10px;font-weight:800;color:var(--gold-dark);background:var(--gold-light);padding:2px 8px;border-radius:10px;">${w.badge.emoji} ${w.badge.name}</span>`:""}
           </div>
-          <div style="font-weight:800;font-size:15px;color:${done?"var(--muted)":"var(--text)"};">Week ${w.week}: ${w.title}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Goal: ${w.goal} · +${w.xp} ⭐</div>
+          <div style="font-weight:800;font-size:15px;color:${locked?"var(--muted)":"var(--text)"};">Week ${w.week}: ${w.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">${w.letters?`<span style="font-family:'Amiri',serif;font-size:13px;direction:rtl;">${w.letters}</span> · `:``}+${w.xp} ⭐</div>
         </div>
-        <div style="font-size:20px;">${done?"✅":curr?"▶️":"🔒"}</div>
+        <div style="font-size:20px;">${done?"✅":curr?"▶️":locked?"🔒":"⭕"}</div>
       </div>
       ${curr?`<div style="margin-top:12px;padding:12px;background:white;border-radius:10px;border:1px solid ${w.color}44;">
-        <div style="font-weight:800;font-size:13px;color:${w.color};margin-bottom:4px;">📋 Today's daily task:</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6;">${w.daily}</div>
+        <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:0.5px;margin-bottom:4px;">YOUR TRACK TASK — ${TRACKS[track]?.name||"Learner"} ${TRACKS[track]?.emoji||""}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7;">${trackTask}</div>
       </div>`:""}
     </div>`;
   }).join("");
 }
 
+// ── BUILD HOME BADGES ──
+function buildHomeBadges(){
+  const e=el("homeBadges");if(!e)return;
+  const earned=BADGES.filter(b=>b.week<currentWeek);
+  const next=BADGES.find(b=>b.week>=currentWeek);
+  if(!earned.length&&!next){e.innerHTML="";return;}
+  const tierColors={Bronze:"#CD7F32",Silver:"#A0A0A0",Gold:"#FFD700",Platinum:"#7C3AED",Diamond:"#00BCD4"};
+  let html=`<div class="card" style="border-color:var(--gold);padding:16px 20px;">
+    <div style="font-weight:800;font-size:14px;color:var(--gold-dark);margin-bottom:12px;">🏅 Your Badges</div>`;
+  if(earned.length){
+    html+=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:${next?'12px':'0'};">`;
+    earned.forEach(b=>{
+      const tc=tierColors[b.tier]||"#999";
+      html+=`<div title="${b.desc}" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:${tc}18;border:2px solid ${tc};cursor:default;">
+        <span style="font-size:16px;">${b.emoji}</span>
+        <div><div style="font-size:11px;font-weight:800;color:${tc};">${b.name}</div><div style="font-size:10px;color:var(--muted);">${b.tier}</div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  if(next){
+    const tc=tierColors[next.tier]||"#999";
+    html+=`<div style="padding:10px 12px;border-radius:12px;background:#F8F8F8;border:2px dashed ${tc};display:flex;align-items:center;gap:10px;">
+      <span style="font-size:22px;opacity:0.4;">${next.emoji}</span>
+      <div><div style="font-size:11px;font-weight:800;color:var(--muted);">NEXT BADGE — Week ${next.week}</div>
+      <div style="font-size:12px;color:var(--muted);">${next.name} · ${next.desc}</div></div>
+    </div>`;
+  }
+  html+=`</div>`;
+  e.innerHTML=html;
+}
+
+// ── WEEK DETAIL MODAL ──
 function showWeekDetail(idx){
   const w=CURRICULUM[idx];
   if(w.week>currentWeek) return;
-  alert(`Week ${w.week}: ${w.title}\n\nDaily Task:\n${w.daily}\n\nGoal: ${w.goal}\n\nReward: +${w.xp} ⭐`);
+  const track=PROFILES[window._prof||"meer"]?.track||"bridgeBuilder";
+  const trackTask=w.tracks?.[track]||w.daily;
+  const tierColors={Bronze:"#CD7F32",Silver:"#A0A0A0",Gold:"#FFD700",Platinum:"#7C3AED",Diamond:"#00BCD4"};
+  const tc=w.badge?tierColors[w.badge.tier]||"#FFD700":"#FFD700";
+  const phase_colors={Decode:"var(--orange)",Connect:"var(--green)",Bridge:"var(--sky-dark)",Understand:"var(--purple)",Mastery:"var(--gold-dark)"};
+  const pc=phase_colors[w.phase]||w.color;
+  // Build all three track tasks for context
+  const allTracks=w.tracks?Object.entries(w.tracks).map(([k,v])=>`<div style="padding:10px 12px;border-radius:10px;background:${TRACKS[k]?.bg||'#F8F8F8'};border:2px solid ${TRACKS[k]?.color||'#ddd'};margin-bottom:6px;"><div style="font-size:10px;font-weight:800;color:${TRACKS[k]?.color||'#666'};margin-bottom:3px;">${TRACKS[k]?.emoji||''} ${TRACKS[k]?.name||k} (Ages ${TRACKS[k]?.ages||''})</div><div style="font-size:13px;color:var(--text);">${v}</div></div>`).join(""):"";
+  const modal=document.createElement("div");
+  modal.style.cssText="position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;";
+  modal.innerHTML=`<div style="background:white;border-radius:24px;padding:32px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;border:3px solid ${w.color};">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:52px;height:52px;border-radius:16px;background:${w.color};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0;">W${w.week}</div>
+      <div><span style="font-size:10px;font-weight:800;color:${pc};background:${pc}18;padding:2px 8px;border-radius:8px;">${w.phase.toUpperCase()} PHASE</span>
+      <div style="font-weight:800;font-size:17px;margin-top:3px;">${w.title}</div></div>
+      <button onclick="this.closest('.week-modal').remove()" style="margin-left:auto;width:36px;height:36px;border-radius:50%;border:none;background:#F0F4FF;font-size:18px;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
+    ${w.letters?`<div style="padding:14px;background:var(--sky-light);border-radius:12px;text-align:center;margin-bottom:16px;"><div style="font-size:11px;font-weight:800;color:var(--sky-dark);margin-bottom:4px;">THIS WEEK'S LETTERS / FOCUS</div><div style="font-family:'Amiri',serif;font-size:28px;direction:rtl;color:var(--orange);">${w.letters}</div></div>`:""}
+    <div style="padding:14px;background:#F8FFF8;border-radius:12px;border:2px solid var(--green)33;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:800;color:var(--green-dark);margin-bottom:4px;">🎯 WEEK GOAL</div>
+      <div style="font-size:14px;color:var(--text);line-height:1.6;">${w.goal}</div>
+    </div>
+    <div style="padding:14px;background:${TRACKS[track]?.bg||'var(--orange-light)'};border-radius:12px;border:2px solid ${TRACKS[track]?.color||'var(--orange)'};margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:800;color:${TRACKS[track]?.color||'var(--orange)'};margin-bottom:4px;">${TRACKS[track]?.emoji||''} YOUR TASK — ${TRACKS[track]?.name||''}</div>
+      <div style="font-size:14px;color:var(--text);line-height:1.7;">${trackTask}</div>
+    </div>
+    ${w.badge?`<div style="padding:14px;background:${tc}18;border-radius:12px;border:2px solid ${tc};margin-bottom:16px;display:flex;align-items:center;gap:12px;"><span style="font-size:36px;">${w.badge.emoji}</span><div><div style="font-size:11px;font-weight:800;color:${tc};">BADGE UNLOCK — ${w.badge.tier}</div><div style="font-weight:800;font-size:16px;color:var(--text);">${w.badge.name}</div><div style="font-size:12px;color:var(--muted);">${BADGES.find(b=>b.name===w.badge.name)?.desc||''}</div></div></div>`:""}
+    ${allTracks?`<details style="margin-bottom:16px;"><summary style="font-size:13px;font-weight:800;color:var(--muted);cursor:pointer;padding:8px 0;">All track versions ▾</summary><div style="margin-top:8px;">${allTracks}</div></details>`:""}
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;padding:12px;background:var(--gold-light);border-radius:12px;text-align:center;"><div style="font-size:11px;font-weight:800;color:var(--gold-dark);">XP REWARD</div><div style="font-size:22px;font-weight:800;color:var(--gold-dark);">+${w.xp} ⭐</div></div>
+      <button onclick="window.switchTab(3)" style="flex:1;padding:12px;background:var(--sky);color:white;border:none;border-radius:12px;font-family:'Baloo 2',cursive;font-size:14px;font-weight:800;cursor:pointer;">📖 Open Quran →</button>
+    </div>
+  </div>`;
+  modal.classList.add("week-modal");
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
 };
 
 // ── SURAH GRID ──
@@ -1452,12 +1574,24 @@ function buildParentUI(){
         <div><div style="font-size:18px;font-weight:800;">${d.displayName||d.nickname}</div><div style="font-size:12px;color:var(--muted);">Age ${d.age||"?"} · Last active: ${d.lastActive||"never"}</div></div>
         <div style="margin-left:auto;"><div class="pill" style="background:var(--gold-light);color:var(--gold-dark);border:2px solid var(--gold);">⭐ ${d.stars||0}</div></div>
       </div>
-      <!-- Curriculum week -->
-      <div style="background:${prof.color}11;border-radius:10px;padding:10px;margin-bottom:12px;border:1px solid ${prof.color}33;">
-        <div style="font-size:11px;font-weight:800;color:${prof.color};margin-bottom:2px;">📅 CURRICULUM PROGRESS</div>
-        <div style="font-size:13px;font-weight:700;">Week ${wk}/16: ${currW?.title||"Complete!"}</div>
-        <div class="prog-bar" style="margin-top:6px;"><div class="prog-fill" style="width:${((wk-1)/16)*100}%;background:${prof.color};"></div></div>
+      <!-- Track + Curriculum -->
+      ${(()=>{const trk=PROFILES[d.nickname]?.track||"bridgeBuilder";const tdata=TRACKS[trk]||{};const earnedBadges=BADGES.filter(b=>b.week<wk);const nextBadge=BADGES.find(b=>b.week>=wk);const tierColors={Bronze:"#CD7F32",Silver:"#A0A0A0",Gold:"#FFD700",Platinum:"#7C3AED",Diamond:"#00BCD4"};return `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:${tdata.bg||'#EEE'};border:1px solid ${tdata.color||'#ccc'};margin-bottom:10px;">
+        <span style="font-size:18px;">${tdata.emoji||'📚'}</span>
+        <div><div style="font-size:10px;font-weight:800;color:${tdata.color||'#666'};">${tdata.name||trk} · Ages ${tdata.ages||''}</div><div style="font-size:11px;color:var(--muted);">${tdata.desc||''}</div></div>
       </div>
+      <div style="background:${prof.color}11;border-radius:10px;padding:10px;margin-bottom:10px;border:1px solid ${prof.color}33;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:11px;font-weight:800;color:${prof.color};">📅 CURRICULUM — Week ${wk}/16</div>
+          <div style="font-size:11px;font-weight:800;color:var(--muted);">${Math.round(((wk-1)/16)*100)}%</div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">${currW?.phase||''}: ${currW?.title||'Complete!'}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${((wk-1)/16)*100}%;background:${prof.color};"></div></div>
+        ${currW?.tracks?.[trk]?`<div style="margin-top:8px;padding:8px;background:white;border-radius:8px;border-left:3px solid ${prof.color};font-size:11px;color:var(--text);line-height:1.5;"><strong>This week's task:</strong> ${currW.tracks[trk]}</div>`:""}
+      </div>
+      ${earnedBadges.length>0?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;">BADGES EARNED</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${earnedBadges.slice(-3).map(b=>`<span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;background:${tierColors[b.tier]||'#eee'}18;border:1px solid ${tierColors[b.tier]||'#eee'};color:${tierColors[b.tier]||'#666'};">${b.emoji} ${b.name}</span>`).join("")}${earnedBadges.length>3?`<span style="font-size:10px;color:var(--muted);padding:3px 6px;">+${earnedBadges.length-3} more</span>`:""}</div></div>`:""}
+      ${nextBadge?`<div style="padding:8px 10px;border-radius:10px;background:#F8F8F8;border:1px dashed ${tierColors[nextBadge.tier]||'#ccc'};margin-bottom:10px;display:flex;align-items:center;gap:8px;"><span style="opacity:0.4;font-size:16px;">${nextBadge.emoji}</span><div style="font-size:10px;color:var(--muted);">Next badge (Wk ${nextBadge.week}): <strong>${nextBadge.name}</strong></div></div>`:""}
+      `})()}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">
         ${[["🔤",(d.lettersLearned?.length||0),"Letters"],["🧠",(d.vocabMastered?.length||0),"Words"],["📖",(d.surahsRead?.length||0),"Surahs"],["🔥",(d.streak||0),"Streak"]].map(([e2,n2,l2])=>`<div style="background:${prof.accent};border-radius:8px;padding:8px;text-align:center;border:1px solid ${prof.color}33;"><div style="font-size:14px;">${e2}</div><div style="font-weight:800;font-size:15px;color:${prof.color};">${n2}</div><div style="font-size:10px;color:var(--muted);font-weight:700;">${l2}</div></div>`).join("")}
       </div>
@@ -1774,6 +1908,7 @@ window.doAssign=doAssign;
 window.advanceWeek=advanceWeek;
 window.saveNote=saveNote;
 
+window.buildHomeBadges=buildHomeBadges;
 window.dismissChar=dismissChar;
 window.showCharFact=showCharFact;
 window.cycleHifz=cycleHifz;
